@@ -4,19 +4,14 @@
  * Author:  Zachary Gill
  */
 
-import javax.imageio.ImageIO;
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,6 +26,10 @@ public class TaxidermyWebsiteGenerator {
     private static final boolean fullCopy = true;
     
     private static final Map<String, String> specimens = new LinkedHashMap<>();
+    private static final TaxonomyMap taxonomyMap = new TaxonomyMap();
+    static {
+        taxonomyMap.nodeValue = "SPECIMENS";
+    }
     
     
     public static void main(String[] args) throws Exception {
@@ -41,12 +40,13 @@ public class TaxidermyWebsiteGenerator {
         makeStyle();
         makeSpecimenPages();
         makeNavbar();
+        makeTreeView();
     }
     
     
     private static void makeIndex() throws Exception {
         File landingPage = new File(sink, "index.html");
-        Filesystem.writeLines(landingPage, wrapHtml(null, true, false, false));
+        Filesystem.writeLines(landingPage, wrapHtml(null, true, false, 0));
     }
     
     private static void makeMainPage() throws Exception {
@@ -69,19 +69,70 @@ public class TaxidermyWebsiteGenerator {
         content.add("<center>");
         content.add("\t<p>Zachary Gill</p>");
         content.add("</center>");
-        Filesystem.writeLines(mainPage, wrapHtml(content, false, false, false));
+        Filesystem.writeLines(mainPage, wrapHtml(content, false, false, 0));
     }
     
     private static void makeNavbar() throws Exception {
         List<String> content = new ArrayList<>();
         content.add("<a href=\"index.html\" target=\"_top\">HOME</a>");
+        content.add("<a href=\"treeview/main.html\" target=\"_top\">TREE VIEW</a>");
         for (Map.Entry<String, String> specimen : specimens.entrySet()) {
             content.add("<a href=\"specimens/" + specimen.getKey() + "/main.html\" target=\"_top\">" + specimen.getValue() + "</a>");
         }
         content.add("<br>");
         content.add("<br>");
         content.add("<br>");
-        Filesystem.writeLines(new File(sink, "navbar.html"), wrapHtml(content, false, false, true));
+        Filesystem.writeLines(new File(sink, "navbar.html"), wrapHtml(content, false, true, 0));
+    }
+    
+    private static void makeTreeView() throws Exception {
+        File treeViewDirectory = new File(sink, "treeview");
+        Filesystem.writeLines(new File(treeViewDirectory, "main.html"), wrapHtml(null, true, false, 1));
+    
+        TaxonomyMap.cleanMap(taxonomyMap);
+        
+        List<String> content = new ArrayList<>();
+        content.add("<h1>SPECIMENS</h1>");
+        content.add("<hr>");
+        content.add("<br>");
+        content.add("");
+        content.add("<ul id=\"myUL\">");
+        content.addAll(makeSubTreeView(taxonomyMap, 0));
+        content.add("</ul>");
+        content.add("");
+        content.add("<script>");
+        content.add("\tvar toggler = document.getElementsByClassName(\"caret\");");
+        content.add("\tvar i;");
+        content.add("\tfor (i = 0; i < toggler.length; i++) {");
+        content.add("\t\ttoggler[i].addEventListener(\"click\", function() {");
+        content.add("\t\t\tthis.parentElement.querySelector(\".nested\").classList.toggle(\"active\");");
+        content.add("\t\t\tthis.classList.toggle(\"caret-down\");");
+        content.add("\t\t});");
+        content.add("\t}");
+        content.add("</script>");
+        Filesystem.writeLines(new File(treeViewDirectory, "content.html"), wrapHtml(content, false, false, 1));
+    }
+    
+    private static List<String> makeSubTreeView(TaxonomyMap node, int indent) {
+        String tab = StringUtility.fillStringOfLength('\t', (indent * 2) + 1);
+        List<String> content = new ArrayList<>();
+        
+        boolean isTerminal = node.nodes.isEmpty();
+        content.add(tab + "<li><span" + (isTerminal ? "" : (" class=\"caret caret-down\"")) + ">" + 
+                    (isTerminal ? ("<a href=\"" + "../specimens/" + node.nodeValue.substring(0, node.nodeValue.indexOf(' ')) + "/main.html\" target=\"_top\">") : "") + 
+                    (node.nodeKey.isEmpty() ? "" : (node.nodeKey + ": ")) + node.nodeValue +
+                    (isTerminal ? "</a>" : "") +
+                    "</span>");
+        if (!isTerminal) {
+            content.add(tab + "\t<ul class=\"nested active\">");
+            for (TaxonomyMap subNode : node.nodes) {
+                content.addAll(makeSubTreeView(subNode, indent + 1));
+            }
+            content.add(tab + "\t</ul>");
+        }
+        content.add(tab + "</li>");
+        
+        return content;
     }
     
     private static void makeStyle() throws Exception {
@@ -90,18 +141,26 @@ public class TaxidermyWebsiteGenerator {
         content.add(".navbarFrame {float:left; width:20%; height:98%; position: fixed;}");
         content.add(".mainFrame {float:left; width:79%; height:98%; margin-left: 20%; position: fixed;}");
         content.add("");
+        content.add(".navbar {height: 100%; width: 100%; position: fixed; z-index: 1; top: 0; left: 0; background-color: #111; overflow-x: hidden; padding-top: 20px;}");
+        content.add(".navbar a {padding: 6px 8px 6px 16px; text-decoration: none; font-size: 14px; color: #818181; display: block;}");
+        content.add("");
         content.add("body {color: #f1f1f1; background-color: #111; font: normal normal normal 16px oloron, monospace;}");
         content.add("h1 {font: normal bold normal 48px monospace; text-align: center; text-decoration: underline, overline; text-transform: uppercase;}");
-        content.add("");
-        content.add("a:link {color: #818181; text-decoration: underline;}");
-        content.add("a:visited {color: #818181; text-decoration: underline;}");
-        content.add("a:hover {color: #f1f1f1;}");
         content.add("");
         content.add(".td-left {text-align: right; padding-right: 8px; width: 50%;}");
         content.add(".td-right {text-align: left; padding-left: 8px; width: 50%;}");
         content.add("");
-        content.add(".navbar {height: 100%; width: 100%; position: fixed; z-index: 1; top: 0; left: 0; background-color: #111; overflow-x: hidden; padding-top: 20px;}");
-        content.add(".navbar a {padding: 6px 8px 6px 16px; text-decoration: none; font-size: 14px; color: #818181; display: block;}");
+        content.add("ul, #myUL {list-style-type: none;}");
+        content.add("#myUL {margin: 0; padding: 0; padding-left: 20px;}");
+        content.add(".caret {cursor: pointer; user-select: none;}");
+        content.add(".caret::before {content: \"\\25B6\"; color: white; display: inline-block; margin-right: 6px;}");
+        content.add(".caret-down::before {transform: rotate(90deg);}");
+        content.add(".nested {display: none;}");
+        content.add(".active {display: block;}");
+        content.add("");
+        content.add("a:link {color: #818181; text-decoration: underline;}");
+        content.add("a:visited {color: #818181; text-decoration: underline;}");
+        content.add("a:hover {color: #f1f1f1;}");
         Filesystem.writeLines(style, content);
     }
     
@@ -110,22 +169,46 @@ public class TaxidermyWebsiteGenerator {
         Filesystem.createDirectory(specimensSinkDir);
         
         List<File> specimenDirs = Filesystem.getDirs(source);
-        for (File specimenDir : specimenDirs) {
-            makeSpecimenPage(specimenDir, specimensSinkDir);
+        for (int i = 0; i < specimenDirs.size(); i++) {
+            File specimenDir = specimenDirs.get(i);
+            makeSpecimenPage(specimenDir, specimensSinkDir, (i == 0), (i == (specimenDirs.size() - 1)));
         }
     }
     
-    private static void makeSpecimenPage(File specimenDir, File specimensSinkDir) throws Exception {
+    private static void makeSpecimenPage(File specimenDir, File specimensSinkDir, boolean first, boolean last) throws Exception {
         String name = specimenDir.getName();
         String id = StringUtility.trim(name.substring(0, name.indexOf('-')));
         specimens.put(id, name);
         
         File specimenSinkDir = new File(specimensSinkDir, id);
         Filesystem.createDirectory(specimenSinkDir);
+        boolean finalized = false;
         
-        Filesystem.writeLines(new File(specimenSinkDir, "main.html"), wrapHtml(null, true, true, false));
+        Filesystem.writeLines(new File(specimenSinkDir, "main.html"), wrapHtml(null, true, false, 2));
         
         List<String> content = new ArrayList<>();
+        content.add("<p width=\"75%\">");
+        if (!first) {
+            String prev = StringUtility.padZero(String.valueOf(Integer.parseInt(id) - 1), 4);
+            content.add("\t<span style=\"float: left; padding-left: 8px;\">" + 
+                        "<a href=\"../" + prev + "/main.html\" target=\"_top\">" +
+                        "&lt;&lt; Previous (" + prev + ")" + 
+                        "</a></span>");
+        } else {
+            content.add("\t<span style\"float: left;\"/>");
+        }
+        if (!last) {
+            String next = StringUtility.padZero(String.valueOf(Integer.parseInt(id) + 1), 4);
+            content.add("\t<span style=\"float: right; padding-right: 8px;\">" +
+                        "<a href=\"../" + next + "/main.html\" target=\"_top\">" +            
+                        "(" + next + ") Next &gt;&gt;" + 
+                        "</a></span>");
+        } else {
+            content.add("\t<span style\"float: right;\"/>");
+        }
+        content.add("</p>");
+        content.add("<br>");
+        
         content.add("<h1>" + name + "</h1>");
         content.add("<hr>");
         content.add("<br>");
@@ -135,7 +218,18 @@ public class TaxidermyWebsiteGenerator {
         File idFile = new File(specimenDir, "id.txt");
         if (idFile.exists()) {
             content.add("\t<p>");
-            List<String> idLines = Filesystem.readLines(idFile);
+            List<String> idLines = new ArrayList<>();
+            Pattern referencePattern = Pattern.compile("#(?<id>\\d{4})");
+            for (String idLine : Filesystem.readLines(idFile)) {
+                Matcher referenceMatcher = referencePattern.matcher(idLine);
+                while (referenceMatcher.find()) {
+                    idLine = idLine.replace(referenceMatcher.group(), "<a href=\"../" + referenceMatcher.group("id") + "/content.html\">" + referenceMatcher.group("id") + "</a>");
+                }
+                idLines.add(idLine);
+                if (idLine.toUpperCase().contains("FINALIZED") || idLine.toUpperCase().contains("FINALIZATION") || idLine.toUpperCase().contains("REPLACED")) {
+                    finalized = true;
+                }
+            }
             for (int i = 0; i < idLines.size(); i++) {
                 content.add("\t\t" + ((i == 0) ? "<b>" : "") + idLines.get(i) + ((i == idLines.size() - 1) ? "</b>" : "<br>"));
             }
@@ -164,6 +258,7 @@ public class TaxidermyWebsiteGenerator {
         if (taxonomy.exists()) {
             content.add("\t<table>");
             List<String> taxonomyLines = Filesystem.readLines(taxonomy);
+            TaxonomyMap.addSpecimen(taxonomyLines, id, name);
             for (String taxonomyLine : taxonomyLines) {
                 if (taxonomyLine.toUpperCase().startsWith("NO TAXON")) {
                     continue;
@@ -190,6 +285,9 @@ public class TaxidermyWebsiteGenerator {
             for (File photoSubDir : photoSubDirs) {
                 
                 String photoDirName = photoSubDir.getName().replaceAll("\\d\\s-\\s", "");
+                if (photoDirName.equalsIgnoreCase("FINAL")) {
+                    finalized = true;
+                }
                 content.add("\t<p>" + photoDirName + "</p>");
                 content.add("\t<br>");
                 
@@ -248,12 +346,17 @@ public class TaxidermyWebsiteGenerator {
             
         }
         content.add("</center>");
+    
+        if (!finalized) {
+            System.out.println("Not Finalized: " + " - " + name);
+        }
         
-        Filesystem.writeLines(new File(specimenSinkDir, "content.html"), wrapHtml(content, false, true, false));
+        Filesystem.writeLines(new File(specimenSinkDir, "content.html"), wrapHtml(content, false, false, 2));
     }
     
     
-    private static List<String> wrapHtml(List<String> content, boolean index, boolean specimen, boolean navbar) throws Exception {
+    private static List<String> wrapHtml(List<String> content, boolean index, boolean navbar, int depth) throws Exception {
+        String depthNavigation = StringUtility.repeatString("../", depth);
         List<String> wrapped = new ArrayList<>();
         wrapped.add("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" ");
         wrapped.add("\t\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">");
@@ -261,14 +364,14 @@ public class TaxidermyWebsiteGenerator {
         wrapped.add("");
         wrapped.add("\t<head>");
         wrapped.add("\t\t<title>Specimens</title>");
-        wrapped.add("\t\t<link rel=\"stylesheet\" type=\"text/css\" href=\"" + (specimen ? "../../" : "") + "css/style.css\"/>");
+        wrapped.add("\t\t<link rel=\"stylesheet\" type=\"text/css\" href=\"" + depthNavigation + "css/style.css\"/>");
         wrapped.add("\t</head>");
         wrapped.add("");
         wrapped.add("\t<body>");
         wrapped.add("\t\t<div" + (index ? ">" : (" class=\"" + (navbar ? "navbar" : "main") + "\">")));
         if (index) {
-            wrapped.add("\t\t\t<iframe class=\"navbarFrame\" src=\"" + (specimen ? "../../" : "") + "navbar.html\"></iframe>");
-            wrapped.add("\t\t\t<iframe class=\"mainFrame\" src=\"" + (specimen ? "content" : "main") + ".html\"></iframe>");
+            wrapped.add("\t\t\t<iframe class=\"navbarFrame\" src=\"" + depthNavigation + "navbar.html\"></iframe>");
+            wrapped.add("\t\t\t<iframe class=\"mainFrame\" src=\"" + ((depth > 0) ? "content" : "main") + ".html\"></iframe>");
         } else {
             for (String contentLine : content) {
                 wrapped.add("\t\t\t" + contentLine);
@@ -312,6 +415,75 @@ public class TaxidermyWebsiteGenerator {
             return getUrlMatcher.group("url");
         }
         return "";
+    }
+    
+    
+    private static class TaxonomyMap {
+        
+        private enum Taxon {
+            KINGDOM,
+            PHYLUM,
+            CLASS,
+            ORDER,
+            FAMILY,
+            GENUS,
+            SPECIES
+        }
+        
+        
+        String nodeKey = "";
+        String nodeValue = "";
+        List<TaxonomyMap> nodes = new ArrayList<>();
+        
+        
+        public static void addSpecimen(List<String> taxonomy, String id, String specimen) {
+            TaxonomyMap node = taxonomyMap;
+            for (String taxonomyLine : taxonomy) {
+                if (taxonomyLine.toUpperCase().startsWith("NO TAXON")) {
+                    continue;
+                }
+                String key = StringUtility.trim(taxonomyLine.substring(0, taxonomyLine.indexOf(' ')));
+                String value = StringUtility.trim(taxonomyLine.substring(taxonomyLine.indexOf(' ')).replaceAll("\\(.*$", ""));
+                
+                boolean found = false;
+                for (Taxon taxon : Taxon.values()) {
+                    if (taxon.name().equalsIgnoreCase(key)) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    continue;
+                }
+                
+                boolean hit = false;
+                for (TaxonomyMap nodeEntry : node.nodes) {
+                    if (nodeEntry.nodeKey.equals(key) && nodeEntry.nodeValue.equalsIgnoreCase(value)) {
+                        node = nodeEntry;
+                        hit = true;
+                        break;
+                    }
+                }
+                if (!hit) {
+                    TaxonomyMap newNode = new TaxonomyMap();
+                    newNode.nodeKey = key;
+                    newNode.nodeValue = value;
+                    node.nodes.add(newNode);
+                    node = newNode;
+                }
+            }
+            TaxonomyMap newNode = new TaxonomyMap();
+            newNode.nodeValue = specimen;
+            node.nodes.add(newNode);
+        }
+        
+        public static void cleanMap(TaxonomyMap node) {
+            node.nodes.sort(Comparator.comparing(o -> o.nodeValue));
+            for (TaxonomyMap subNode : node.nodes) {
+                cleanMap(subNode);
+            }
+        }
+        
     }
     
 }
