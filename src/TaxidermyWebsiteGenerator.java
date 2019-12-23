@@ -21,7 +21,7 @@ import common.StringUtility;
 public class TaxidermyWebsiteGenerator {
     
     private static final File source = new File("E:/Documents/Taxidermy/Specimens");
-    private static final File sink = new File("E:/Coding/HTML/Taxidermy");
+    private static final File sink = new File("E:/Coding/HTML/Taxidermy2");
     
     private static final boolean fullCopy = true;
     
@@ -33,7 +33,7 @@ public class TaxidermyWebsiteGenerator {
     
     
     public static void main(String[] args) throws Exception {
-        Filesystem.clearDirectory(sink);
+        cleanup();
         
         makeIndex();
         makeMainPage();
@@ -41,6 +41,16 @@ public class TaxidermyWebsiteGenerator {
         makeSpecimenPages();
         makeNavbar();
         makeTreeView();
+    }
+    
+    private static void cleanup() throws Exception {
+        Filesystem.deleteDirectory(new File(sink, "css"));
+        Filesystem.deleteDirectory(new File(sink, "images"));
+        Filesystem.deleteDirectory(new File(sink, "specimens"));
+        Filesystem.deleteDirectory(new File(sink, "treeview"));
+        Filesystem.deleteFile(new File(sink, "index.html"));
+        Filesystem.deleteFile(new File(sink, "main.html"));
+        Filesystem.deleteFile(new File(sink, "navbar.html"));
     }
     
     
