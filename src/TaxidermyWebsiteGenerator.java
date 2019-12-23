@@ -21,7 +21,7 @@ import common.StringUtility;
 public class TaxidermyWebsiteGenerator {
     
     private static final File source = new File("E:/Documents/Taxidermy/Specimens");
-    private static final File sink = new File("E:/Coding/HTML/Taxidermy2");
+    private static final File sink = new File("E:/Coding/HTML/Taxidermy");
     
     private static final boolean fullCopy = true;
     
