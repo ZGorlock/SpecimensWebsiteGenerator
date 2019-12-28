@@ -1,5 +1,5 @@
 /*
- * File:    TaxidermyWebsiteGenerator.java
+ * File:    SpecimensWebsiteGenerator.java
  * Package: 
  * Author:  Zachary Gill
  */
@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 import common.Filesystem;
 import common.StringUtility;
 
-public class TaxidermyWebsiteGenerator {
+public class SpecimensWebsiteGenerator {
     
     private static final File source = new File("E:/Documents/Taxidermy/Specimens");
     private static final File sink = new File("E:/Coding/HTML/Taxidermy");
