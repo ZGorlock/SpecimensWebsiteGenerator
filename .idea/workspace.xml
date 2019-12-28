@@ -1,18 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f9e99a64-4a88-46e0-a70b-9c9daee0b245" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/SpecimensWebsiteGenerator.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TaxidermyWebsiteGenerator.iml" beforeDir="false" afterPath="$PROJECT_DIR$/SpecimensWebsiteGenerator.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/TaxidermyWebsiteGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/SpecimensWebsiteGenerator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/TaxidermyWebsiteGenerator.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/TaxidermyWebsiteGenerator.class" afterDir="false" />
-    </list>
+    <list default="true" id="f9e99a64-4a88-46e0-a70b-9c9daee0b245" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -58,6 +47,9 @@
     <property name="settings.editor.selected.configurable" value="editor.preferences.folding" />
   </component>
   <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="E:\Coding\JAVA\SpecimensWebsiteGenerator" />
+    </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="E:\Coding\JAVA\SpecimensWebsiteGenerator" />
       <recent name="E:\Coding\JAVA\TaxidermyWebsiteGenerator\src" />
