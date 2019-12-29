@@ -358,7 +358,7 @@ public class SpecimensWebsiteGenerator {
         content.add("</center>");
     
         if (!finalized) {
-            System.out.println("Not Finalized: " + " - " + name);
+            System.out.println("Not Finalized: " + name);
         }
         
         Filesystem.writeLines(new File(specimenSinkDir, "content.html"), wrapHtml(content, false, false, 2));
