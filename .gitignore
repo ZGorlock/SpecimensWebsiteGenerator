@@ -1,3 +1,7 @@
-**/target
-.idea/workspace.xml
-*.class
+/.idea/libraries
+/.idea/workspace.xml
+**/*.iws
+
+**/bin/
+**/target/
+**/out/

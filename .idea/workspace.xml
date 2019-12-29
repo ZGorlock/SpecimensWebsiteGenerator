@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f9e99a64-4a88-46e0-a70b-9c9daee0b245" name="Default Changelist" comment="" />
+    <list default="true" id="f9e99a64-4a88-46e0-a70b-9c9daee0b245" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/SpecimensWebsiteGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/SpecimensWebsiteGenerator.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -81,53 +85,6 @@
     <configuration default="true" type="JUnit" factoryName="JUnit">
       <option name="TEST_OBJECT" value="class" />
       <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="JetRunConfigurationType" factoryName="Kotlin">
-      <module name="SpecimensWebsiteGenerator" />
-      <option name="VM_PARAMETERS" />
-      <option name="PROGRAM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="WORKING_DIRECTORY" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType" factoryName="Kotlin script">
-      <module name="SpecimensWebsiteGenerator" />
-      <option name="filePath" />
-      <option name="vmParameters" />
-      <option name="alternativeJrePath" />
-      <option name="programParameters" />
-      <option name="passParentEnvs" value="true" />
-      <option name="workingDirectory" />
-      <option name="isAlternativeJrePathEnabled" value="false" />
-      <option name="VM_PARAMETERS" />
-      <option name="PROGRAM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="WORKING_DIRECTORY" />
-      <option name="filePath" />
-      <option name="vmParameters" />
-      <option name="alternativeJrePath" />
-      <option name="programParameters" />
-      <option name="passParentEnvs" value="true" />
-      <option name="workingDirectory" />
-      <option name="isAlternativeJrePathEnabled" value="false" />
-      <option name="VM_PARAMETERS" />
-      <option name="PROGRAM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="WORKING_DIRECTORY" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -219,25 +176,25 @@
       <screen x="0" y="0" width="2048" height="1112" />
     </state>
     <state x="755" y="232" key="FileChooserDialogImpl/0.0.2048.1112/2560.0.2048.1152@0.0.2048.1112" timestamp="1577494289190" />
-    <state width="1993" height="296" key="GridCell.Tab.0.bottom" timestamp="1577494196572">
+    <state width="1993" height="296" key="GridCell.Tab.0.bottom" timestamp="1577581587191">
       <screen x="0" y="0" width="2048" height="1112" />
     </state>
-    <state width="1993" height="296" key="GridCell.Tab.0.bottom/0.0.2048.1112/2560.0.2048.1152@0.0.2048.1112" timestamp="1577494196572" />
+    <state width="1993" height="296" key="GridCell.Tab.0.bottom/0.0.2048.1112/2560.0.2048.1152@0.0.2048.1112" timestamp="1577581587191" />
     <state width="1993" height="297" key="GridCell.Tab.0.bottom/0.0.2048.1112/2560.0.2048.1152@2560.0.2048.1152" timestamp="1576965658999" />
-    <state width="1993" height="296" key="GridCell.Tab.0.center" timestamp="1577494196572">
+    <state width="1993" height="296" key="GridCell.Tab.0.center" timestamp="1577581587191">
       <screen x="0" y="0" width="2048" height="1112" />
     </state>
-    <state width="1993" height="296" key="GridCell.Tab.0.center/0.0.2048.1112/2560.0.2048.1152@0.0.2048.1112" timestamp="1577494196572" />
+    <state width="1993" height="296" key="GridCell.Tab.0.center/0.0.2048.1112/2560.0.2048.1152@0.0.2048.1112" timestamp="1577581587191" />
     <state width="1993" height="297" key="GridCell.Tab.0.center/0.0.2048.1112/2560.0.2048.1152@2560.0.2048.1152" timestamp="1576965658999" />
-    <state width="1993" height="296" key="GridCell.Tab.0.left" timestamp="1577494196572">
+    <state width="1993" height="296" key="GridCell.Tab.0.left" timestamp="1577581587191">
       <screen x="0" y="0" width="2048" height="1112" />
     </state>
-    <state width="1993" height="296" key="GridCell.Tab.0.left/0.0.2048.1112/2560.0.2048.1152@0.0.2048.1112" timestamp="1577494196572" />
+    <state width="1993" height="296" key="GridCell.Tab.0.left/0.0.2048.1112/2560.0.2048.1152@0.0.2048.1112" timestamp="1577581587191" />
     <state width="1993" height="297" key="GridCell.Tab.0.left/0.0.2048.1112/2560.0.2048.1152@2560.0.2048.1152" timestamp="1576965658999" />
-    <state width="1993" height="296" key="GridCell.Tab.0.right" timestamp="1577494196572">
+    <state width="1993" height="296" key="GridCell.Tab.0.right" timestamp="1577581587191">
       <screen x="0" y="0" width="2048" height="1112" />
     </state>
-    <state width="1993" height="296" key="GridCell.Tab.0.right/0.0.2048.1112/2560.0.2048.1152@0.0.2048.1112" timestamp="1577494196572" />
+    <state width="1993" height="296" key="GridCell.Tab.0.right/0.0.2048.1112/2560.0.2048.1152@0.0.2048.1112" timestamp="1577581587191" />
     <state width="1993" height="297" key="GridCell.Tab.0.right/0.0.2048.1112/2560.0.2048.1152@2560.0.2048.1152" timestamp="1576965658999" />
     <state x="377" y="22" key="SettingsEditor" timestamp="1577494301929">
       <screen x="0" y="0" width="2048" height="1112" />
