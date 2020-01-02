@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f9e99a64-4a88-46e0-a70b-9c9daee0b245" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/SpecimensWebsiteGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/SpecimensWebsiteGenerator.java" afterDir="false" />
     </list>
@@ -44,7 +43,7 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../Sandbox" />
     <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.21789473" />
@@ -172,30 +171,30 @@
       <screen x="0" y="0" width="2048" height="1112" />
     </state>
     <state x="583" y="77" key="CommitChangelistDialog2/0.0.2048.1112/2560.0.2048.1152@0.0.2048.1112" timestamp="1577068931477" />
-    <state x="755" y="232" key="FileChooserDialogImpl" timestamp="1577494289190">
+    <state x="755" y="232" key="FileChooserDialogImpl" timestamp="1577994500465">
       <screen x="0" y="0" width="2048" height="1112" />
     </state>
-    <state x="755" y="232" key="FileChooserDialogImpl/0.0.2048.1112/2560.0.2048.1152@0.0.2048.1112" timestamp="1577494289190" />
-    <state width="1993" height="296" key="GridCell.Tab.0.bottom" timestamp="1577581587191">
+    <state x="755" y="232" key="FileChooserDialogImpl/0.0.2048.1112/2560.0.2048.1152@0.0.2048.1112" timestamp="1577994500465" />
+    <state width="1993" height="309" key="GridCell.Tab.0.bottom" timestamp="1577994501791">
       <screen x="0" y="0" width="2048" height="1112" />
     </state>
-    <state width="1993" height="296" key="GridCell.Tab.0.bottom/0.0.2048.1112/2560.0.2048.1152@0.0.2048.1112" timestamp="1577581587191" />
-    <state width="1993" height="297" key="GridCell.Tab.0.bottom/0.0.2048.1112/2560.0.2048.1152@2560.0.2048.1152" timestamp="1576965658999" />
-    <state width="1993" height="296" key="GridCell.Tab.0.center" timestamp="1577581587191">
+    <state width="1993" height="309" key="GridCell.Tab.0.bottom/0.0.2048.1112/2560.0.2048.1152@0.0.2048.1112" timestamp="1577994501791" />
+    <state width="1993" height="309" key="GridCell.Tab.0.bottom/0.0.2048.1112/2560.0.2048.1152@2560.0.2048.1152" timestamp="1577991957220" />
+    <state width="1993" height="309" key="GridCell.Tab.0.center" timestamp="1577994501791">
       <screen x="0" y="0" width="2048" height="1112" />
     </state>
-    <state width="1993" height="296" key="GridCell.Tab.0.center/0.0.2048.1112/2560.0.2048.1152@0.0.2048.1112" timestamp="1577581587191" />
-    <state width="1993" height="297" key="GridCell.Tab.0.center/0.0.2048.1112/2560.0.2048.1152@2560.0.2048.1152" timestamp="1576965658999" />
-    <state width="1993" height="296" key="GridCell.Tab.0.left" timestamp="1577581587191">
+    <state width="1993" height="309" key="GridCell.Tab.0.center/0.0.2048.1112/2560.0.2048.1152@0.0.2048.1112" timestamp="1577994501791" />
+    <state width="1993" height="309" key="GridCell.Tab.0.center/0.0.2048.1112/2560.0.2048.1152@2560.0.2048.1152" timestamp="1577991957220" />
+    <state width="1993" height="309" key="GridCell.Tab.0.left" timestamp="1577994501791">
       <screen x="0" y="0" width="2048" height="1112" />
     </state>
-    <state width="1993" height="296" key="GridCell.Tab.0.left/0.0.2048.1112/2560.0.2048.1152@0.0.2048.1112" timestamp="1577581587191" />
-    <state width="1993" height="297" key="GridCell.Tab.0.left/0.0.2048.1112/2560.0.2048.1152@2560.0.2048.1152" timestamp="1576965658999" />
-    <state width="1993" height="296" key="GridCell.Tab.0.right" timestamp="1577581587191">
+    <state width="1993" height="309" key="GridCell.Tab.0.left/0.0.2048.1112/2560.0.2048.1152@0.0.2048.1112" timestamp="1577994501791" />
+    <state width="1993" height="309" key="GridCell.Tab.0.left/0.0.2048.1112/2560.0.2048.1152@2560.0.2048.1152" timestamp="1577991957220" />
+    <state width="1993" height="309" key="GridCell.Tab.0.right" timestamp="1577994501791">
       <screen x="0" y="0" width="2048" height="1112" />
     </state>
-    <state width="1993" height="296" key="GridCell.Tab.0.right/0.0.2048.1112/2560.0.2048.1152@0.0.2048.1112" timestamp="1577581587191" />
-    <state width="1993" height="297" key="GridCell.Tab.0.right/0.0.2048.1112/2560.0.2048.1152@2560.0.2048.1152" timestamp="1576965658999" />
+    <state width="1993" height="309" key="GridCell.Tab.0.right/0.0.2048.1112/2560.0.2048.1152@0.0.2048.1112" timestamp="1577994501791" />
+    <state width="1993" height="309" key="GridCell.Tab.0.right/0.0.2048.1112/2560.0.2048.1152@2560.0.2048.1152" timestamp="1577991957220" />
     <state x="377" y="22" key="SettingsEditor" timestamp="1577494301929">
       <screen x="0" y="0" width="2048" height="1112" />
     </state>
@@ -208,9 +207,10 @@
       <screen x="0" y="0" width="2048" height="1112" />
     </state>
     <state x="627" y="76" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/0.0.2048.1112/2560.0.2048.1152@0.0.2048.1112" timestamp="1576707338932" />
-    <state x="603" y="77" width="840" height="1034" key="search.everywhere.popup" timestamp="1577068793434">
-      <screen x="0" y="0" width="2048" height="1112" />
+    <state x="3163" y="80" width="840" height="1072" key="search.everywhere.popup" timestamp="1577987468524">
+      <screen x="2560" y="0" width="2048" height="1152" />
     </state>
     <state x="603" y="77" width="840" height="1034" key="search.everywhere.popup/0.0.2048.1112/2560.0.2048.1152@0.0.2048.1112" timestamp="1577068793434" />
+    <state x="3163" y="80" width="840" height="1072" key="search.everywhere.popup/0.0.2048.1112/2560.0.2048.1152@2560.0.2048.1152" timestamp="1577987468524" />
   </component>
 </project>

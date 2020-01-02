@@ -20,8 +20,12 @@ import common.StringUtility;
 
 public class SpecimensWebsiteGenerator {
     
-    private static final File source = new File("E:/Documents/Taxidermy/Specimens");
-    private static final File sink = new File("E:/Coding/HTML/Taxidermy");
+    private static final File source = new File("E:/Documents/Specimens");
+    private static final File specimensSource = new File(source, "Specimens");
+    private static final File referencesSource = new File(source, "References");
+    private static final File vialRacksSource = new File(source, "Vial Racks");
+    private static final File sink = new File("E:/Coding/HTML/Specimens");
+    
     
     private static final boolean fullCopy = true;
     
@@ -39,14 +43,18 @@ public class SpecimensWebsiteGenerator {
         makeMainPage();
         makeStyle();
         makeSpecimenPages();
-        makeNavbar();
+        makeReferences();
+        makeVialRacks();
         makeTreeView();
+        makeNavbar();
     }
     
     private static void cleanup() throws Exception {
         Filesystem.deleteDirectory(new File(sink, "css"));
         Filesystem.deleteDirectory(new File(sink, "images"));
         Filesystem.deleteDirectory(new File(sink, "specimens"));
+        Filesystem.deleteDirectory(new File(sink, "references"));
+        Filesystem.deleteDirectory(new File(sink, "vialRacks"));
         Filesystem.deleteDirectory(new File(sink, "treeview"));
         Filesystem.deleteFile(new File(sink, "index.html"));
         Filesystem.deleteFile(new File(sink, "main.html"));
@@ -62,15 +70,15 @@ public class SpecimensWebsiteGenerator {
     private static void makeMainPage() throws Exception {
         File mainPage = new File(sink, "main.html");
         List<String> content = new ArrayList<>();
-        content.add("<h1>SPECIMENS</h1>");
+        content.add("<h1>Specimens</h1>");
         content.add("<hr>");
         content.add("<br>");
         content.add("");
         
-        File coverImage = new File(source, "Specimens.jpg");
+        File coverImage = new File(specimensSource, "Specimens.jpg");
         if (coverImage.exists()) {
             content.add("<center>");
-            content.add("\t<img src=\"" + linkImage(coverImage, sink, -1) + "\" width=\"65%\" height=\"65%\"/>");
+            content.add("\t<img src=\"" + linkImage(coverImage, sink, -1) + "\" width=\"60%\" height=\"60%\"/>");
             content.add("</center>");
             content.add("<br>");
             content.add("");
@@ -79,70 +87,8 @@ public class SpecimensWebsiteGenerator {
         content.add("<center>");
         content.add("\t<p>Zachary Gill</p>");
         content.add("</center>");
+        
         Filesystem.writeLines(mainPage, wrapHtml(content, false, false, 0));
-    }
-    
-    private static void makeNavbar() throws Exception {
-        List<String> content = new ArrayList<>();
-        content.add("<a href=\"index.html\" target=\"_top\">HOME</a>");
-        content.add("<a href=\"treeview/main.html\" target=\"_top\">TREE VIEW</a>");
-        for (Map.Entry<String, String> specimen : specimens.entrySet()) {
-            content.add("<a href=\"specimens/" + specimen.getKey() + "/main.html\" target=\"_top\">" + specimen.getValue() + "</a>");
-        }
-        content.add("<br>");
-        content.add("<br>");
-        content.add("<br>");
-        Filesystem.writeLines(new File(sink, "navbar.html"), wrapHtml(content, false, true, 0));
-    }
-    
-    private static void makeTreeView() throws Exception {
-        File treeViewDirectory = new File(sink, "treeview");
-        Filesystem.writeLines(new File(treeViewDirectory, "main.html"), wrapHtml(null, true, false, 1));
-    
-        TaxonomyMap.cleanMap(taxonomyMap);
-        
-        List<String> content = new ArrayList<>();
-        content.add("<h1>SPECIMENS</h1>");
-        content.add("<hr>");
-        content.add("<br>");
-        content.add("");
-        content.add("<ul id=\"myUL\">");
-        content.addAll(makeSubTreeView(taxonomyMap, 0));
-        content.add("</ul>");
-        content.add("");
-        content.add("<script>");
-        content.add("\tvar toggler = document.getElementsByClassName(\"caret\");");
-        content.add("\tvar i;");
-        content.add("\tfor (i = 0; i < toggler.length; i++) {");
-        content.add("\t\ttoggler[i].addEventListener(\"click\", function() {");
-        content.add("\t\t\tthis.parentElement.querySelector(\".nested\").classList.toggle(\"active\");");
-        content.add("\t\t\tthis.classList.toggle(\"caret-down\");");
-        content.add("\t\t});");
-        content.add("\t}");
-        content.add("</script>");
-        Filesystem.writeLines(new File(treeViewDirectory, "content.html"), wrapHtml(content, false, false, 1));
-    }
-    
-    private static List<String> makeSubTreeView(TaxonomyMap node, int indent) {
-        String tab = StringUtility.fillStringOfLength('\t', (indent * 2) + 1);
-        List<String> content = new ArrayList<>();
-        
-        boolean isTerminal = node.nodes.isEmpty();
-        content.add(tab + "<li><span" + (isTerminal ? "" : (" class=\"caret caret-down\"")) + ">" + 
-                    (isTerminal ? ("<a href=\"" + "../specimens/" + node.nodeValue.substring(0, node.nodeValue.indexOf(' ')) + "/main.html\" target=\"_top\">") : "") + 
-                    (node.nodeKey.isEmpty() ? "" : (node.nodeKey + ": ")) + node.nodeValue +
-                    (isTerminal ? "</a>" : "") +
-                    "</span>");
-        if (!isTerminal) {
-            content.add(tab + "\t<ul class=\"nested active\">");
-            for (TaxonomyMap subNode : node.nodes) {
-                content.addAll(makeSubTreeView(subNode, indent + 1));
-            }
-            content.add(tab + "\t</ul>");
-        }
-        content.add(tab + "</li>");
-        
-        return content;
     }
     
     private static void makeStyle() throws Exception {
@@ -178,7 +124,7 @@ public class SpecimensWebsiteGenerator {
         File specimensSinkDir = new File(sink, "specimens");
         Filesystem.createDirectory(specimensSinkDir);
         
-        List<File> specimenDirs = Filesystem.getDirs(source);
+        List<File> specimenDirs = Filesystem.getDirs(specimensSource);
         for (int i = 0; i < specimenDirs.size(); i++) {
             File specimenDir = specimenDirs.get(i);
             makeSpecimenPage(specimenDir, specimensSinkDir, (i == 0), (i == (specimenDirs.size() - 1)));
@@ -200,9 +146,9 @@ public class SpecimensWebsiteGenerator {
         content.add("<p width=\"75%\">");
         if (!first) {
             String prev = StringUtility.padZero(String.valueOf(Integer.parseInt(id) - 1), 4);
-            content.add("\t<span style=\"float: left; padding-left: 8px;\">" + 
+            content.add("\t<span style=\"float: left; padding-left: 8px;\">" +
                         "<a href=\"../" + prev + "/main.html\" target=\"_top\">" +
-                        "&lt;&lt; Previous (" + prev + ")" + 
+                        "&lt;&lt; Previous (" + prev + ")" +
                         "</a></span>");
         } else {
             content.add("\t<span style\"float: left;\"/>");
@@ -210,8 +156,8 @@ public class SpecimensWebsiteGenerator {
         if (!last) {
             String next = StringUtility.padZero(String.valueOf(Integer.parseInt(id) + 1), 4);
             content.add("\t<span style=\"float: right; padding-right: 8px;\">" +
-                        "<a href=\"../" + next + "/main.html\" target=\"_top\">" +            
-                        "(" + next + ") Next &gt;&gt;" + 
+                        "<a href=\"../" + next + "/main.html\" target=\"_top\">" +
+                        "(" + next + ") Next &gt;&gt;" +
                         "</a></span>");
         } else {
             content.add("\t<span style\"float: right;\"/>");
@@ -343,7 +289,7 @@ public class SpecimensWebsiteGenerator {
                     referenceMap.putIfAbsent(referenceEntry.getName(), getUrlFromShortcut(referenceEntry));
                 }
             }
-    
+            
             content.add("\t<p>References</p>");
             for (Map.Entry<String, String> referenceEntry : referenceMap.entrySet()) {
                 content.add("\t<a href=\"" + referenceEntry.getValue() + "\">" + StringUtility.rShear(referenceEntry.getKey(), 4) + "</a><br>");
@@ -356,12 +302,174 @@ public class SpecimensWebsiteGenerator {
             
         }
         content.add("</center>");
-    
+        
         if (!finalized) {
             System.out.println("Not Finalized: " + name);
         }
         
         Filesystem.writeLines(new File(specimenSinkDir, "content.html"), wrapHtml(content, false, false, 2));
+    }
+    
+    private static void makeReferences() throws Exception {
+        File referencesSinkDir = new File(sink, "references");
+        Filesystem.createDirectory(referencesSinkDir);
+        Filesystem.writeLines(new File(referencesSinkDir, "main.html"), wrapHtml(null, true, false, 1));
+    
+        List<String> content = new ArrayList<>();
+        content.add("<h1>References</h1>");
+        content.add("<hr>");
+        content.add("<br>");
+        content.add("");
+        
+        for (File referencesDirectory : Filesystem.getDirs(referencesSource)) {
+            content.add("<div style=\"padding-left: 10%\">");
+            content.add("\t<p>" + referencesDirectory.getName() + "</p>");
+            content.add("\t<ul>");
+            for (File reference : Filesystem.getFiles(referencesDirectory)) {
+                content.add("\t\t<li><a href=\"" + getUrlFromShortcut(reference) + "\" target=\"_blank\">" + StringUtility.rShear(reference.getName(), 4) + "</a></li>");
+            }
+            content.add("\t</ul>");
+            content.add("</div>");
+            content.add("<br>");
+            content.add("");
+        }
+    
+        content.add("<div style=\"padding-left: 10%\">");
+        content.add("\t<p>Other</p>");
+        content.add("\t<ul>");
+        for (File reference : Filesystem.getFiles(referencesSource)) {
+            content.add("\t\t<li><a href=\"" + getUrlFromShortcut(reference) + "\" target=\"_blank\">" + StringUtility.rShear(reference.getName(), 4) + "</a></li>");
+        }
+        content.add("\t</ul>");
+        content.add("</div>");
+        content.add("<br>");
+        content.add("");
+        
+        Filesystem.writeLines(new File(referencesSinkDir, "content.html"), wrapHtml(content, false, false, 1));
+    }
+    
+    private static void makeVialRacks() throws Exception {
+        File vialRacksSinkDir = new File(sink, "vialRacks");
+        Filesystem.createDirectory(vialRacksSinkDir);
+        Filesystem.writeLines(new File(vialRacksSinkDir, "main.html"), wrapHtml(null, true, false, 1));
+        
+        File vialRackFileDir = new File(vialRacksSinkDir, "file");
+        Filesystem.copyDirectory(vialRacksSource, vialRackFileDir);
+        
+        List<String> content = new ArrayList<>();
+        content.add("<h1>Vial Racks</h1>");
+        content.add("<hr>");
+        content.add("<br>");
+        content.add("");
+        
+        content.add("<br>");
+        content.add("<div style=\"padding-left: 10%\">");
+        for (File vialRack : Filesystem.getFiles(vialRackFileDir)) {
+            content.add("\t<a href=\"" + vialRack.getAbsolutePath().replace("\\", "/").replaceAll("^.*/file/", "file/") + "\" target=\"_top\" download type=\"application/octet-stream\">" + vialRack.getName() + "</a>");
+        }
+        content.add("</div>");
+        content.add("<br>");
+        content.add("<br>");
+        content.add("");
+    
+        for (File vialRackDirectory : Filesystem.getDirs(vialRackFileDir)) {
+            content.add("<div style=\"padding-left: 10%\">");
+            content.add("\t<p>" + vialRackDirectory.getName() + "</p>");
+            content.add("\t<ul>");
+            for (File vialRack : Filesystem.getFiles(vialRackDirectory)) {
+                content.add("\t\t<li><a href=\"" + vialRack.getAbsolutePath().replace("\\", "/").replaceAll("^.*/file/", "file/") + "\"  target=\"_top\" download type=\"application/octet-stream\">" + vialRack.getName() + "</a></li>");
+            }
+            content.add("\t</ul>");
+            content.add("</div>");
+            content.add("<br>");
+            content.add("");
+        }
+        
+        Filesystem.writeLines(new File(vialRacksSinkDir, "content.html"), wrapHtml(content, false, false, 1));
+    }
+    
+    private static void makeTreeView() throws Exception {
+        File treeViewDirectory = new File(sink, "treeview");
+        Filesystem.writeLines(new File(treeViewDirectory, "main.html"), wrapHtml(null, true, false, 1));
+        
+        TaxonomyMap.cleanMap(taxonomyMap);
+        
+        List<String> content = new ArrayList<>();
+        content.add("<h1>Specimens Tree View</h1>");
+        content.add("<hr>");
+        content.add("<br>");
+        content.add("");
+        content.add("<ul id=\"myUL\">");
+        content.addAll(makeSubTreeView(taxonomyMap, 0));
+        content.add("</ul>");
+        content.add("");
+        content.addAll(makeToggler());
+        
+        Filesystem.writeLines(new File(treeViewDirectory, "content.html"), wrapHtml(content, false, false, 1));
+    }
+    
+    private static List<String> makeSubTreeView(TaxonomyMap node, int indent) {
+        String tab = StringUtility.fillStringOfLength('\t', (indent * 2) + 1);
+        List<String> content = new ArrayList<>();
+        
+        boolean isTerminal = node.nodes.isEmpty();
+        content.add(tab + "<li><span" + (isTerminal ? "" : (" class=\"caret caret-down\"")) + ">" +
+                    (isTerminal ? ("<a href=\"" + "../specimens/" + node.nodeValue.substring(0, node.nodeValue.indexOf(' ')) + "/main.html\" target=\"_top\">") : "") +
+                    (node.nodeKey.isEmpty() ? "" : (node.nodeKey + ": ")) + node.nodeValue +
+                    (isTerminal ? "</a>" : "") +
+                    "</span>");
+        if (!isTerminal) {
+            content.add(tab + "\t<ul class=\"nested active\">");
+            for (TaxonomyMap subNode : node.nodes) {
+                content.addAll(makeSubTreeView(subNode, indent + 1));
+            }
+            content.add(tab + "\t</ul>");
+        }
+        content.add(tab + "</li>");
+        
+        return content;
+    }
+    
+    private static void makeNavbar() throws Exception {
+        List<String> content = new ArrayList<>();
+        content.add("<a href=\"index.html\" target=\"_top\" style=\"padding-left: 24px;\">HOME</a>");
+        content.add("<a href=\"treeview/main.html\" target=\"_top\" style=\"padding-left: 24px;\">TREE VIEW</a>");
+        
+        content.add("<ul id=\"myUL\" style=\"padding: 6px 8px 6px 6px; color: #818181; font-size: 14px;\">");
+        content.add("\t<li><span class=\"caret caret-down\">SPECIMENS</span>");
+        content.add("\t\t<ul class=\"nested active\" style=\"padding-left: 20px;\">");
+        for (Map.Entry<String, String> specimen : specimens.entrySet()) {
+            content.add("\t\t\t<li><span><a href=\"specimens/" + specimen.getKey() + "/main.html\" target=\"_top\">" + specimen.getValue() + "</a></span></li>");
+        }
+        content.add("\t\t</ul>");
+        content.add("\t</li>");
+        content.add("</ul>");
+    
+        content.add("<a href=\"references/main.html\" target=\"_top\" style=\"padding-left: 24px;\">REFERENCES</a>");
+        content.add("<a href=\"vialRacks/main.html\" target=\"_top\" style=\"padding-left: 24px;\">VIAL RACKS</a>");
+        
+        content.add("<br>");
+        content.add("<br>");
+        content.add("<br>");
+        content.add("");
+        content.addAll(makeToggler());
+        
+        Filesystem.writeLines(new File(sink, "navbar.html"), wrapHtml(content, false, true, 0));
+    }
+    
+    private static List<String> makeToggler() {
+        List<String> content = new ArrayList<>();
+        content.add("<script>");
+        content.add("\tvar toggler = document.getElementsByClassName(\"caret\");");
+        content.add("\tvar i;");
+        content.add("\tfor (i = 0; i < toggler.length; i++) {");
+        content.add("\t\ttoggler[i].addEventListener(\"click\", function() {");
+        content.add("\t\t\tthis.parentElement.querySelector(\".nested\").classList.toggle(\"active\");");
+        content.add("\t\t\tthis.classList.toggle(\"caret-down\");");
+        content.add("\t\t});");
+        content.add("\t}");
+        content.add("</script>");
+        return content;
     }
     
     
