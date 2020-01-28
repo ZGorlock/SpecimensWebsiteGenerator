@@ -42,6 +42,7 @@ public class SpecimensWebsiteGenerator {
         makeIndex();
         makeMainPage();
         makeStyle();
+        makeToggler();
         makeSpecimenPages();
         makeReferences();
         makeVialRacks();
@@ -106,6 +107,9 @@ public class SpecimensWebsiteGenerator {
         content.add(".td-left {text-align: right; padding-right: 8px; width: 50%;}");
         content.add(".td-right {text-align: left; padding-left: 8px; width: 50%;}");
         content.add("");
+        content.add(".img_div {z-index:9999; display:none; background-color:#000; position:fixed; height:100%; width:100%; left: 0px; top: 0px; text-align: center; overflow: hidden;}");
+        content.add(".img_div_close {position: absolute; right: 0px; top: 0px; background: #000; color: #fff; cursor: pointer; width: 32px; height: 32px; text-align: center; line-height: 32px;}");
+        content.add("");
         content.add("ul, #myUL {list-style-type: none;}");
         content.add("#myUL {margin: 0; padding: 0; padding-left: 20px;}");
         content.add(".caret {cursor: pointer; user-select: none;}");
@@ -118,6 +122,23 @@ public class SpecimensWebsiteGenerator {
         content.add("a:visited {color: #818181; text-decoration: underline;}");
         content.add("a:hover {color: #f1f1f1;}");
         Filesystem.writeLines(style, content);
+    }
+    
+    private static void makeToggler() throws Exception {
+        File scriptsDir = new File(sink, "scripts");
+        Filesystem.createDirectory(scriptsDir);
+        
+        List<String> content = new ArrayList<>();
+        content.add("var toggler = document.getElementsByClassName(\"caret\");");
+        content.add("var i;");
+        content.add("for (i = 0; i < toggler.length; i++) {");
+        content.add("\ttoggler[i].addEventListener(\"click\", function() {");
+        content.add("\t\tthis.parentElement.querySelector(\".nested\").classList.toggle(\"active\");");
+        content.add("\t\tthis.classList.toggle(\"caret-down\");");
+        content.add("\t});");
+        content.add("}");
+        
+        Filesystem.writeLines(new File(scriptsDir, "toggler.js"), content);
     }
     
     private static void makeSpecimenPages() throws Exception {
@@ -173,7 +194,7 @@ public class SpecimensWebsiteGenerator {
         
         File idFile = new File(specimenDir, "id.txt");
         if (idFile.exists()) {
-            content.add("\t<p>");
+            content.add("\t<p><b>");
             List<String> idLines = new ArrayList<>();
             Pattern referencePattern = Pattern.compile("#(?<id>\\d{4})");
             for (String idLine : Filesystem.readLines(idFile)) {
@@ -187,9 +208,9 @@ public class SpecimensWebsiteGenerator {
                 }
             }
             for (int i = 0; i < idLines.size(); i++) {
-                content.add("\t\t" + ((i == 0) ? "<b>" : "") + idLines.get(i) + ((i == idLines.size() - 1) ? "</b>" : "<br>"));
+                content.add("\t\t" + idLines.get(i) + ((i < idLines.size() - 1) ? "<br>" : ""));
             }
-            content.add("\t</p>");
+            content.add("\t</b></p>");
             content.add("");
             content.add("\t<br>");
             content.add("\t<hr>");
@@ -235,6 +256,7 @@ public class SpecimensWebsiteGenerator {
         }
         
         File photosDir = new File(specimenDir, "Photos");
+        List<String> images = new ArrayList<>();
         if (photosDir.exists()) {
             List<File> photoSubDirs = Filesystem.getDirs(photosDir);
             int photoSubDirIndex = 0;
@@ -248,15 +270,25 @@ public class SpecimensWebsiteGenerator {
                 content.add("\t<br>");
                 
                 List<File> photoList = Filesystem.getFiles(photoSubDir);
-                for (File video : photoList) {
-                    if (video.getName().toLowerCase().endsWith("mp4")) {
-                        content.add("\t<video width=\"720\" height=\"480\" controls><source src=\"" + linkImage(video, specimenSinkDir, photoSubDirIndex) + "\" type=\"video/mp4\"></video><br>");
-                    }
-                }
+                int index = 0;
                 for (File photo : photoList) {
-                    if (!photo.getName().toLowerCase().endsWith("mp4")) {
-                        content.add("\t<img src=\"" + linkImage(photo, specimenSinkDir, photoSubDirIndex) + "\" width=\"50%\" height=\"50%\"/>");
+                    String image = linkImage(photo, specimenSinkDir, photoSubDirIndex);
+                    String imageId = "img_" + photoDirName.toLowerCase().replace(" ", "_") + index;
+                    if (photo.getName().toLowerCase().endsWith("mp4")) {
+                        content.add("\t<a id=\"" + imageId + "\" href=\"#\" target=\"_blank\"><video width=\"720\" height=\"480\" controls><source src=\"" + image + "\" type=\"video/mp4\"></video></a><br>");
+                        content.add("\t<div id=\"div_" + imageId + "\" class=\"img_div\">");
+                        content.add("\t\t<video width=\"100%\" height=\"100%\" controls><source sr=\"" + image + "\" type=\"video/mp4\"></video>");
+                        content.add("\t\t<div id=\"div_close_" + imageId + "\" class=\"img_div_close\">X</div>");
+                        content.add("\t</div>");
+                    } else {
+                        content.add("\t<a id=\"" + imageId + "\" href=\"#\" target=\"_blank\"><img src=\"" + image + "\" width=\"50%\" height=\"50%\"/></a><br>");
+                        content.add("\t<div id=\"div_" + imageId + "\" class=\"img_div\">");
+                        content.add("\t\t<img src=\"" + image + "\" width=\"100%\" height=\"100%\"/>");
+                        content.add("\t\t<div id=\"div_close_" + imageId + "\" class=\"img_div_close\">X</div>");
+                        content.add("\t</div>");
                     }
+                    images.add(imageId);
+                    index++;
                 }
                 
                 content.add("\t<br>");
@@ -269,6 +301,8 @@ public class SpecimensWebsiteGenerator {
                 photoSubDirIndex++;
             }
         }
+        
+        makeSpecimenImagePopupScript(specimenSinkDir, images);
         
         File reference = new File(specimenDir, "Reference");
         if (reference.exists()) {
@@ -307,7 +341,61 @@ public class SpecimensWebsiteGenerator {
             System.out.println("Not Finalized: " + name);
         }
         
-        Filesystem.writeLines(new File(specimenSinkDir, "content.html"), wrapHtml(content, false, false, 2));
+        Filesystem.writeLines(new File(specimenSinkDir, "content.html"), wrapHtml(content, false, false, 2, "scripts/imagePopup.js"));
+    }
+    
+    private static void makeSpecimenImagePopupScript(File specimenSinkDir, List<String> images) {
+        File scriptsDir = new File(specimenSinkDir, "scripts");
+        Filesystem.createDirectory(scriptsDir);
+        
+        List<String> content = new ArrayList<>();
+        content.add("$(document).ready(function() {");
+        content.add("\tvar scroll = 0;");
+        content.add("");
+        content.add("\t$(document).on('scroll', 'html, body', function() {");
+        content.add("\t\tscroll = $(window).scrollTop();");
+        content.add("\t});");
+        content.add("");
+        content.add("\tfunction prepareShow() {");
+        content.add("\t\tscroll = $(window).scrollTop();");
+        content.add("\t\t$('html, body').css({");
+        content.add("\t\t\toverflow: 'hidden',");
+        content.add("\t\t\theight: '100%'");
+        content.add("\t\t});");
+        content.add("\t}");
+        content.add("\tfunction prepareHide() {");
+        content.add("\t\t$('html, body').css({");
+        content.add("\t\t\toverflow: 'auto',");
+        content.add("\t\t\theight: 'auto'");
+        content.add("\t\t});");
+        content.add("\t\t$(\"html\").scrollTop(scroll);");
+        content.add("");
+        
+        for (String image : images) {
+            content.add("\t$('#" + image + "').click( function(e) {");
+            content.add("\t\te.preventDefault();");
+            content.add("\t\tprepareShow();");
+            content.add("\t\t$(\"#div_" + image + "\").show();");
+            content.add("\t});");
+            content.add("\t$('#div_close_" + image + "').click(function(){");
+            content.add("\t\tprepareHide();");
+            content.add("\t$(\"#div_" + image + "\").hide();");
+            content.add("\t});");
+            content.add("");
+        }
+        
+        content.add("\t$(document).keyup(function(e) {");
+        content.add("\t\tif (e.key === \"Escape\") {");
+        content.add("\t\t\tprepareHide();");
+        for (String image : images) {
+            content.add("\t\t\t$(\"#div_" + image + "\").hide();");
+        }
+        content.add("\t\t}");
+        content.add("\t});");
+        content.add("");
+        content.add("});");
+        
+        Filesystem.writeLines(new File(scriptsDir, "imagePopup.js"), content);
     }
     
     private static void makeReferences() throws Exception {
@@ -403,9 +491,8 @@ public class SpecimensWebsiteGenerator {
         content.addAll(makeSubTreeView(taxonomyMap, 0));
         content.add("</ul>");
         content.add("");
-        content.addAll(makeToggler());
         
-        Filesystem.writeLines(new File(treeViewDirectory, "content.html"), wrapHtml(content, false, false, 1));
+        Filesystem.writeLines(new File(treeViewDirectory, "content.html"), wrapHtml(content, false, false, 1, "../scripts/toggler.js"));
     }
     
     private static List<String> makeSubTreeView(TaxonomyMap node, int indent) {
@@ -452,28 +539,12 @@ public class SpecimensWebsiteGenerator {
         content.add("<br>");
         content.add("<br>");
         content.add("");
-        content.addAll(makeToggler());
         
-        Filesystem.writeLines(new File(sink, "navbar.html"), wrapHtml(content, false, true, 0));
-    }
-    
-    private static List<String> makeToggler() {
-        List<String> content = new ArrayList<>();
-        content.add("<script>");
-        content.add("\tvar toggler = document.getElementsByClassName(\"caret\");");
-        content.add("\tvar i;");
-        content.add("\tfor (i = 0; i < toggler.length; i++) {");
-        content.add("\t\ttoggler[i].addEventListener(\"click\", function() {");
-        content.add("\t\t\tthis.parentElement.querySelector(\".nested\").classList.toggle(\"active\");");
-        content.add("\t\t\tthis.classList.toggle(\"caret-down\");");
-        content.add("\t\t});");
-        content.add("\t}");
-        content.add("</script>");
-        return content;
+        Filesystem.writeLines(new File(sink, "navbar.html"), wrapHtml(content, false, true, 0, "scripts/toggler.js"));
     }
     
     
-    private static List<String> wrapHtml(List<String> content, boolean index, boolean navbar, int depth) throws Exception {
+    private static List<String> wrapHtml(List<String> content, boolean index, boolean navbar, int depth, String... scripts) throws Exception {
         String depthNavigation = StringUtility.repeatString("../", depth);
         List<String> wrapped = new ArrayList<>();
         wrapped.add("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" ");
@@ -483,6 +554,12 @@ public class SpecimensWebsiteGenerator {
         wrapped.add("\t<head>");
         wrapped.add("\t\t<title>Specimens</title>");
         wrapped.add("\t\t<link rel=\"stylesheet\" type=\"text/css\" href=\"" + depthNavigation + "css/style.css\"/>");
+        if (scripts.length > 0) {
+            wrapped.add("\t\t<script src=\"https://code.jquery.com/jquery-2.1.1.min.js\"></script>");
+            for (String script : scripts) {
+                wrapped.add("\t\t<script src=\"" + script + "\" type=\"text/javascript\"></script>");
+            }
+        }
         wrapped.add("\t</head>");
         wrapped.add("");
         wrapped.add("\t<body>");
@@ -501,6 +578,10 @@ public class SpecimensWebsiteGenerator {
         wrapped.add("</html>");
         return wrapped;
     }
+    
+//    private static List<String> wrapHtml(List<String> content, boolean index, boolean navbar, int depth) throws Exception {
+//        wrapHtml()
+//    }
     
     private static String linkImage(File source, File destDir, int index) throws Exception {
         File imageDir = new File(destDir, "images");
