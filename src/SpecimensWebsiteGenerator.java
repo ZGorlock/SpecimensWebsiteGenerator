@@ -1,6 +1,6 @@
 /*
  * File:    SpecimensWebsiteGenerator.java
- * Package: 
+ * Package:
  * Author:  Zachary Gill
  */
 
@@ -21,20 +21,24 @@ import common.StringUtility;
 public class SpecimensWebsiteGenerator {
     
     private static final File source = new File("E:/Documents/Specimens");
-    private static final File specimensSource = new File(source, "Specimens");
-    private static final File referencesSource = new File(source, "References");
-    private static final File vialRacksSource = new File(source, "Vial Racks");
-    private static final File sink = new File("E:/Coding/HTML/Specimens");
     
+    private static final File specimensSource = new File(source, "Specimens");
+    
+    private static final File referencesSource = new File(source, "References");
+    
+    private static final File vialRacksSource = new File(source, "Vial Racks");
+    
+    private static final File sink = new File("E:/Coding/HTML/Specimens");
     
     private static final boolean fullCopy = true;
     
     private static final Map<String, String> specimens = new LinkedHashMap<>();
+    
     private static final TaxonomyMap taxonomyMap = new TaxonomyMap();
+    
     static {
         taxonomyMap.nodeValue = "SPECIMENS";
     }
-    
     
     public static void main(String[] args) throws Exception {
         cleanup();
@@ -62,7 +66,6 @@ public class SpecimensWebsiteGenerator {
         Filesystem.deleteFile(new File(sink, "navbar.html"));
     }
     
-    
     private static void makeIndex() throws Exception {
         File landingPage = new File(sink, "index.html");
         Filesystem.writeLines(landingPage, wrapHtml(null, true, false, 0));
@@ -84,7 +87,7 @@ public class SpecimensWebsiteGenerator {
             content.add("<br>");
             content.add("");
         }
-    
+        
         content.add("<center>");
         content.add("\t<p>Zachary Gill</p>");
         content.add("</center>");
@@ -171,18 +174,18 @@ public class SpecimensWebsiteGenerator {
         if (!first) {
             String prev = StringUtility.padZero(String.valueOf(Integer.parseInt(id) - 1), 4);
             content.add("\t<span style=\"float: left; padding-left: 8px;\">" +
-                        "<a href=\"../" + prev + "/main.html\" target=\"_top\">" +
-                        "&lt;&lt; Previous (" + prev + ")" +
-                        "</a></span>");
+                    "<a href=\"../" + prev + "/main.html\" target=\"_top\">" +
+                    "&lt;&lt; Previous (" + prev + ")" +
+                    "</a></span>");
         } else {
             content.add("\t<span style\"float: left;\"/>");
         }
         if (!last) {
             String next = StringUtility.padZero(String.valueOf(Integer.parseInt(id) + 1), 4);
             content.add("\t<span style=\"float: right; padding-right: 8px;\">" +
-                        "<a href=\"../" + next + "/main.html\" target=\"_top\">" +
-                        "(" + next + ") Next &gt;&gt;" +
-                        "</a></span>");
+                    "<a href=\"../" + next + "/main.html\" target=\"_top\">" +
+                    "(" + next + ") Next &gt;&gt;" +
+                    "</a></span>");
         } else {
             content.add("\t<span style\"float: right;\"/>");
         }
@@ -406,7 +409,7 @@ public class SpecimensWebsiteGenerator {
         File referencesSinkDir = new File(sink, "references");
         Filesystem.createDirectory(referencesSinkDir);
         Filesystem.writeLines(new File(referencesSinkDir, "main.html"), wrapHtml(null, true, false, 1));
-    
+        
         List<String> content = new ArrayList<>();
         content.add("<h1>References</h1>");
         content.add("<hr>");
@@ -425,7 +428,7 @@ public class SpecimensWebsiteGenerator {
             content.add("<br>");
             content.add("");
         }
-    
+        
         content.add("<div style=\"padding-left: 10%\">");
         content.add("\t<p>Other</p>");
         content.add("\t<ul>");
@@ -463,7 +466,7 @@ public class SpecimensWebsiteGenerator {
         content.add("<br>");
         content.add("<br>");
         content.add("");
-    
+        
         for (File vialRackDirectory : Filesystem.getDirs(vialRackFileDir)) {
             content.add("<div style=\"padding-left: 10%\">");
             content.add("\t<p>" + vialRackDirectory.getName() + "</p>");
@@ -505,10 +508,10 @@ public class SpecimensWebsiteGenerator {
         
         boolean isTerminal = node.nodes.isEmpty();
         content.add(tab + "<li><span" + (isTerminal ? "" : (" class=\"caret caret-down\"")) + ">" +
-                    (isTerminal ? ("<a href=\"" + "../specimens/" + node.nodeValue.substring(0, node.nodeValue.indexOf(' ')) + "/main.html\" target=\"_top\">") : "") +
-                    (node.nodeKey.isEmpty() ? "" : (node.nodeKey + ": ")) + node.nodeValue +
-                    (isTerminal ? "</a>" : "") +
-                    "</span>");
+                (isTerminal ? ("<a href=\"" + "../specimens/" + node.nodeValue.substring(0, node.nodeValue.indexOf(' ')) + "/main.html\" target=\"_top\">") : "") +
+                (node.nodeKey.isEmpty() ? "" : (node.nodeKey + ": ")) + node.nodeValue +
+                (isTerminal ? "</a>" : "") +
+                "</span>");
         if (!isTerminal) {
             content.add(tab + "\t<ul class=\"nested active\">");
             for (TaxonomyMap subNode : node.nodes) {
@@ -535,7 +538,7 @@ public class SpecimensWebsiteGenerator {
         content.add("\t\t</ul>");
         content.add("\t</li>");
         content.add("</ul>");
-    
+        
         content.add("<a href=\"references/main.html\" target=\"_top\" style=\"padding-left: 24px;\">REFERENCES</a>");
         content.add("<a href=\"vialRacks/main.html\" target=\"_top\" style=\"padding-left: 24px;\">VIAL RACKS</a>");
         
@@ -546,7 +549,6 @@ public class SpecimensWebsiteGenerator {
         
         Filesystem.writeLines(new File(sink, "navbar.html"), wrapHtml(content, false, true, 0, "scripts/toggler.js"));
     }
-    
     
     private static List<String> wrapHtml(List<String> content, boolean index, boolean navbar, int depth, String... scripts) throws Exception {
         String depthNavigation = StringUtility.repeatString("../", depth);
@@ -582,7 +584,7 @@ public class SpecimensWebsiteGenerator {
         wrapped.add("</html>");
         return wrapped;
     }
-    
+
 //    private static List<String> wrapHtml(List<String> content, boolean index, boolean navbar, int depth) throws Exception {
 //        wrapHtml()
 //    }
@@ -620,7 +622,6 @@ public class SpecimensWebsiteGenerator {
         return "";
     }
     
-    
     private static class TaxonomyMap {
         
         private enum Taxon {
@@ -633,11 +634,11 @@ public class SpecimensWebsiteGenerator {
             SPECIES
         }
         
-        
         String nodeKey = "";
-        String nodeValue = "";
-        List<TaxonomyMap> nodes = new ArrayList<>();
         
+        String nodeValue = "";
+        
+        List<TaxonomyMap> nodes = new ArrayList<>();
         
         public static void addSpecimen(List<String> taxonomy, String id, String specimen) {
             TaxonomyMap node = taxonomyMap;
