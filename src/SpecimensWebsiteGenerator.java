@@ -108,6 +108,7 @@ public class SpecimensWebsiteGenerator {
         content.add(".td-right {text-align: left; padding-left: 8px; width: 50%;}");
         content.add("");
         content.add(".img_div {z-index:9999; display:none; background-color:#000; position:fixed; height:100%; width:100%; left: 0px; top: 0px; text-align: center; overflow: hidden;}");
+        content.add(".img_div_img {width: 100%; height: 100%; object-fit: contain;}");
         content.add(".img_div_close {position: absolute; right: 0px; top: 0px; background: #000; color: #fff; cursor: pointer; width: 32px; height: 32px; text-align: center; line-height: 32px;}");
         content.add("");
         content.add("ul, #myUL {list-style-type: none;}");
@@ -129,14 +130,16 @@ public class SpecimensWebsiteGenerator {
         Filesystem.createDirectory(scriptsDir);
         
         List<String> content = new ArrayList<>();
-        content.add("var toggler = document.getElementsByClassName(\"caret\");");
-        content.add("var i;");
-        content.add("for (i = 0; i < toggler.length; i++) {");
-        content.add("\ttoggler[i].addEventListener(\"click\", function() {");
-        content.add("\t\tthis.parentElement.querySelector(\".nested\").classList.toggle(\"active\");");
-        content.add("\t\tthis.classList.toggle(\"caret-down\");");
-        content.add("\t});");
-        content.add("}");
+        content.add("$(document).ready(function() {");
+        content.add("\tvar toggler = document.getElementsByClassName(\"caret\");");
+        content.add("\tvar i;");
+        content.add("\tfor (i = 0; i < toggler.length; i++) {");
+        content.add("\t\ttoggler[i].addEventListener(\"click\", function() {");
+        content.add("\t\t\tthis.parentElement.querySelector(\".nested\").classList.toggle(\"active\");");
+        content.add("\t\t\tthis.classList.toggle(\"caret-down\");");
+        content.add("\t\t});");
+        content.add("\t}");
+        content.add("});");
         
         Filesystem.writeLines(new File(scriptsDir, "toggler.js"), content);
     }
@@ -277,13 +280,13 @@ public class SpecimensWebsiteGenerator {
                     if (photo.getName().toLowerCase().endsWith("mp4")) {
                         content.add("\t<a id=\"" + imageId + "\" href=\"#\" target=\"_blank\"><video width=\"720\" height=\"480\" controls><source src=\"" + image + "\" type=\"video/mp4\"></video></a><br>");
                         content.add("\t<div id=\"div_" + imageId + "\" class=\"img_div\">");
-                        content.add("\t\t<video width=\"100%\" height=\"100%\" controls><source sr=\"" + image + "\" type=\"video/mp4\"></video>");
+                        content.add("\t\t<video class=\"img_div_img\" controls><source src=\"" + image + "\" type=\"video/mp4\"></video>");
                         content.add("\t\t<div id=\"div_close_" + imageId + "\" class=\"img_div_close\">X</div>");
                         content.add("\t</div>");
                     } else {
                         content.add("\t<a id=\"" + imageId + "\" href=\"#\" target=\"_blank\"><img src=\"" + image + "\" width=\"50%\" height=\"50%\"/></a><br>");
                         content.add("\t<div id=\"div_" + imageId + "\" class=\"img_div\">");
-                        content.add("\t\t<img src=\"" + image + "\" width=\"100%\" height=\"100%\"/>");
+                        content.add("\t\t<img class=\"img_div_img\" src=\"" + image + "\"/>");
                         content.add("\t\t<div id=\"div_close_" + imageId + "\" class=\"img_div_close\">X</div>");
                         content.add("\t</div>");
                     }
@@ -369,6 +372,7 @@ public class SpecimensWebsiteGenerator {
         content.add("\t\t\theight: 'auto'");
         content.add("\t\t});");
         content.add("\t\t$(\"html\").scrollTop(scroll);");
+        content.add("\t}");
         content.add("");
         
         for (String image : images) {
