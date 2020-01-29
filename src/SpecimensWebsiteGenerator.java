@@ -82,15 +82,11 @@ public class SpecimensWebsiteGenerator {
         File coverImage = new File(specimensSource, "Specimens.jpg");
         if (coverImage.exists()) {
             content.add("<center>");
-            content.add("\t<img src=\"" + linkImage(coverImage, sink, -1) + "\" width=\"60%\" height=\"60%\"/>");
+            content.add("\t<img src=\"" + linkImage(coverImage, sink, -1) + "\" width=\"70%\" height=\"70%\"/>");
             content.add("</center>");
             content.add("<br>");
             content.add("");
         }
-        
-        content.add("<center>");
-        content.add("\t<p>Zachary Gill</p>");
-        content.add("</center>");
         
         Filesystem.writeLines(mainPage, wrapHtml(content, false, false, 0));
     }
@@ -174,7 +170,7 @@ public class SpecimensWebsiteGenerator {
         if (!first) {
             String prev = StringUtility.padZero(String.valueOf(Integer.parseInt(id) - 1), 4);
             content.add("\t<span style=\"float: left; padding-left: 8px;\">" +
-                    "<a href=\"../" + prev + "/main.html\" target=\"_top\">" +
+                    "<a href=\"../" + prev + "/content.html\" target=\"mainFrame\">" +
                     "&lt;&lt; Previous (" + prev + ")" +
                     "</a></span>");
         } else {
@@ -183,7 +179,7 @@ public class SpecimensWebsiteGenerator {
         if (!last) {
             String next = StringUtility.padZero(String.valueOf(Integer.parseInt(id) + 1), 4);
             content.add("\t<span style=\"float: right; padding-right: 8px;\">" +
-                    "<a href=\"../" + next + "/main.html\" target=\"_top\">" +
+                    "<a href=\"../" + next + "/content.html\" target=\"mainFrame\">" +
                     "(" + next + ") Next &gt;&gt;" +
                     "</a></span>");
         } else {
@@ -206,7 +202,7 @@ public class SpecimensWebsiteGenerator {
             for (String idLine : Filesystem.readLines(idFile)) {
                 Matcher referenceMatcher = referencePattern.matcher(idLine);
                 while (referenceMatcher.find()) {
-                    idLine = idLine.replace(referenceMatcher.group(), "<a href=\"../" + referenceMatcher.group("id") + "/content.html\">" + referenceMatcher.group("id") + "</a>");
+                    idLine = idLine.replace(referenceMatcher.group(), "<a href=\"../" + referenceMatcher.group("id") + "/content.html\" target=\"mainFrame\">" + referenceMatcher.group("id") + "</a>");
                 }
                 idLines.add(idLine);
                 if (idLine.toUpperCase().contains("FINALIZED") || idLine.toUpperCase().contains("FINALIZATION") || idLine.toUpperCase().contains("REPLACED")) {
@@ -228,7 +224,7 @@ public class SpecimensWebsiteGenerator {
         if (bugGuide.exists()) {
             String bugGuideUrl = getUrlFromShortcut(bugGuide);
             content.add("\t<p>");
-            content.add("\t\t<a href=\"" + bugGuideUrl + "\">BugGuide Submission</a>");
+            content.add("\t\t<a href=\"" + bugGuideUrl + "\" target=\"mainFrame\">BugGuide Submission</a>");
             content.add("\t</p>");
             content.add("");
             content.add("\t<br>");
@@ -332,7 +328,7 @@ public class SpecimensWebsiteGenerator {
             
             content.add("\t<p>References</p>");
             for (Map.Entry<String, String> referenceEntry : referenceMap.entrySet()) {
-                content.add("\t<a href=\"" + referenceEntry.getValue() + "\">" + StringUtility.rShear(referenceEntry.getKey(), 4) + "</a><br>");
+                content.add("\t<a href=\"" + referenceEntry.getValue() + "\" target=\"mainFrame\">" + StringUtility.rShear(referenceEntry.getKey(), 4) + "</a><br>");
             }
             
             content.add("");
@@ -384,6 +380,10 @@ public class SpecimensWebsiteGenerator {
             content.add("\t\tprepareShow();");
             content.add("\t\t$(\"#div_" + image + "\").show();");
             content.add("\t});");
+            content.add("\t$('#div_" + image + "').click(function(){");
+            content.add("\t\tprepareHide();");
+            content.add("\t$(\"#div_" + image + "\").hide();");
+            content.add("\t});");
             content.add("\t$('#div_close_" + image + "').click(function(){");
             content.add("\t\tprepareHide();");
             content.add("\t$(\"#div_" + image + "\").hide();");
@@ -421,7 +421,7 @@ public class SpecimensWebsiteGenerator {
             content.add("\t<p>" + referencesDirectory.getName() + "</p>");
             content.add("\t<ul>");
             for (File reference : Filesystem.getFiles(referencesDirectory)) {
-                content.add("\t\t<li><a href=\"" + getUrlFromShortcut(reference) + "\" target=\"_blank\">" + StringUtility.rShear(reference.getName(), 4) + "</a></li>");
+                content.add("\t\t<li><a href=\"" + getUrlFromShortcut(reference) + "\" target=\"mainFrame\">" + StringUtility.rShear(reference.getName(), 4) + "</a></li>");
             }
             content.add("\t</ul>");
             content.add("</div>");
@@ -433,7 +433,7 @@ public class SpecimensWebsiteGenerator {
         content.add("\t<p>Other</p>");
         content.add("\t<ul>");
         for (File reference : Filesystem.getFiles(referencesSource)) {
-            content.add("\t\t<li><a href=\"" + getUrlFromShortcut(reference) + "\" target=\"_blank\">" + StringUtility.rShear(reference.getName(), 4) + "</a></li>");
+            content.add("\t\t<li><a href=\"" + getUrlFromShortcut(reference) + "\" target=\"mainFrame\">" + StringUtility.rShear(reference.getName(), 4) + "</a></li>");
         }
         content.add("\t</ul>");
         content.add("</div>");
@@ -460,7 +460,7 @@ public class SpecimensWebsiteGenerator {
         content.add("<br>");
         content.add("<div style=\"padding-left: 10%\">");
         for (File vialRack : Filesystem.getFiles(vialRackFileDir)) {
-            content.add("\t<a href=\"" + vialRack.getAbsolutePath().replace("\\", "/").replaceAll("^.*/file/", "file/") + "\" target=\"_top\" download type=\"application/octet-stream\">" + vialRack.getName() + "</a>");
+            content.add("\t<a href=\"" + vialRack.getAbsolutePath().replace("\\", "/").replaceAll("^.*/file/", "file/") + "\" target=\"mainFrame\" download type=\"application/octet-stream\">" + vialRack.getName() + "</a>");
         }
         content.add("</div>");
         content.add("<br>");
@@ -472,7 +472,7 @@ public class SpecimensWebsiteGenerator {
             content.add("\t<p>" + vialRackDirectory.getName() + "</p>");
             content.add("\t<ul>");
             for (File vialRack : Filesystem.getFiles(vialRackDirectory)) {
-                content.add("\t\t<li><a href=\"" + vialRack.getAbsolutePath().replace("\\", "/").replaceAll("^.*/file/", "file/") + "\"  target=\"_top\" download type=\"application/octet-stream\">" + vialRack.getName() + "</a></li>");
+                content.add("\t\t<li><a href=\"" + vialRack.getAbsolutePath().replace("\\", "/").replaceAll("^.*/file/", "file/") + "\" target=\"mainFrame\" download type=\"application/octet-stream\">" + vialRack.getName() + "</a></li>");
             }
             content.add("\t</ul>");
             content.add("</div>");
@@ -508,7 +508,7 @@ public class SpecimensWebsiteGenerator {
         
         boolean isTerminal = node.nodes.isEmpty();
         content.add(tab + "<li><span" + (isTerminal ? "" : (" class=\"caret caret-down\"")) + ">" +
-                (isTerminal ? ("<a href=\"" + "../specimens/" + node.nodeValue.substring(0, node.nodeValue.indexOf(' ')) + "/main.html\" target=\"_top\">") : "") +
+                (isTerminal ? ("<a href=\"" + "../specimens/" + node.nodeValue.substring(0, node.nodeValue.indexOf(' ')) + "/content.html\" target=\"mainFrame\">") : "") +
                 (node.nodeKey.isEmpty() ? "" : (node.nodeKey + ": ")) + node.nodeValue +
                 (isTerminal ? "</a>" : "") +
                 "</span>");
@@ -526,21 +526,21 @@ public class SpecimensWebsiteGenerator {
     
     private static void makeNavbar() throws Exception {
         List<String> content = new ArrayList<>();
-        content.add("<a href=\"index.html\" target=\"_top\" style=\"padding-left: 24px;\">HOME</a>");
-        content.add("<a href=\"treeview/main.html\" target=\"_top\" style=\"padding-left: 24px;\">TREE VIEW</a>");
+        content.add("<a href=\"home.html\" target=\"mainFrame\" style=\"padding-left: 24px;\">HOME</a>");
+        content.add("<a href=\"treeview/content.html\" target=\"mainFrame\" style=\"padding-left: 24px;\">TREE VIEW</a>");
         
         content.add("<ul id=\"myUL\" style=\"padding: 6px 8px 6px 6px; color: #818181; font-size: 14px;\">");
         content.add("\t<li><span class=\"caret caret-down\">SPECIMENS</span>");
         content.add("\t\t<ul class=\"nested active\" style=\"padding-left: 20px;\">");
         for (Map.Entry<String, String> specimen : specimens.entrySet()) {
-            content.add("\t\t\t<li><span><a href=\"specimens/" + specimen.getKey() + "/main.html\" target=\"_top\">" + specimen.getValue() + "</a></span></li>");
+            content.add("\t\t\t<li><span><a href=\"specimens/" + specimen.getKey() + "/content.html\" target=\"mainFrame\">" + specimen.getValue() + "</a></span></li>");
         }
         content.add("\t\t</ul>");
         content.add("\t</li>");
         content.add("</ul>");
         
-        content.add("<a href=\"references/main.html\" target=\"_top\" style=\"padding-left: 24px;\">REFERENCES</a>");
-        content.add("<a href=\"vialRacks/main.html\" target=\"_top\" style=\"padding-left: 24px;\">VIAL RACKS</a>");
+        content.add("<a href=\"references/content.html\" target=\"mainFrame\" style=\"padding-left: 24px;\">REFERENCES</a>");
+        content.add("<a href=\"vialRacks/content.html\" target=\"mainFrame\" style=\"padding-left: 24px;\">VIAL RACKS</a>");
         
         content.add("<br>");
         content.add("<br>");
@@ -572,7 +572,7 @@ public class SpecimensWebsiteGenerator {
         wrapped.add("\t\t<div" + (index ? ">" : (" class=\"" + (navbar ? "navbar" : "main") + "\">")));
         if (index) {
             wrapped.add("\t\t\t<iframe class=\"navbarFrame\" src=\"" + depthNavigation + "navbar.html\"></iframe>");
-            wrapped.add("\t\t\t<iframe class=\"mainFrame\" src=\"" + ((depth > 0) ? "content" : "main") + ".html\"></iframe>");
+            wrapped.add("\t\t\t<iframe class=\"mainFrame\" name=\"mainFrame\" src=\"" + ((depth > 0) ? "content" : "main") + ".html\"></iframe>");
         } else {
             for (String contentLine : content) {
                 wrapped.add("\t\t\t" + contentLine);
@@ -584,10 +584,6 @@ public class SpecimensWebsiteGenerator {
         wrapped.add("</html>");
         return wrapped;
     }
-
-//    private static List<String> wrapHtml(List<String> content, boolean index, boolean navbar, int depth) throws Exception {
-//        wrapHtml()
-//    }
     
     private static String linkImage(File source, File destDir, int index) throws Exception {
         File imageDir = new File(destDir, "images");
