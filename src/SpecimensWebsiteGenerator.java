@@ -421,7 +421,7 @@ public class SpecimensWebsiteGenerator {
             content.add("\t<p>" + referencesDirectory.getName() + "</p>");
             content.add("\t<ul>");
             for (File reference : Filesystem.getFiles(referencesDirectory)) {
-                content.add("\t\t<li><a href=\"" + getUrlFromShortcut(reference) + "\" target=\"mainFrame\">" + StringUtility.rShear(reference.getName(), 4) + "</a></li>");
+                content.add("\t\t<li><a href=\"" + getUrlFromShortcut(reference) + "\" target=\"_blank\">" + StringUtility.rShear(reference.getName(), 4) + "</a></li>");
             }
             content.add("\t</ul>");
             content.add("</div>");
@@ -433,7 +433,7 @@ public class SpecimensWebsiteGenerator {
         content.add("\t<p>Other</p>");
         content.add("\t<ul>");
         for (File reference : Filesystem.getFiles(referencesSource)) {
-            content.add("\t\t<li><a href=\"" + getUrlFromShortcut(reference) + "\" target=\"mainFrame\">" + StringUtility.rShear(reference.getName(), 4) + "</a></li>");
+            content.add("\t\t<li><a href=\"" + getUrlFromShortcut(reference) + "\" target=\"_blank\">" + StringUtility.rShear(reference.getName(), 4) + "</a></li>");
         }
         content.add("\t</ul>");
         content.add("</div>");
@@ -526,7 +526,7 @@ public class SpecimensWebsiteGenerator {
     
     private static void makeNavbar() throws Exception {
         List<String> content = new ArrayList<>();
-        content.add("<a href=\"home.html\" target=\"mainFrame\" style=\"padding-left: 24px;\">HOME</a>");
+        content.add("<a href=\"main.html\" target=\"mainFrame\" style=\"padding-left: 24px;\">HOME</a>");
         content.add("<a href=\"treeview/content.html\" target=\"mainFrame\" style=\"padding-left: 24px;\">TREE VIEW</a>");
         
         content.add("<ul id=\"myUL\" style=\"padding: 6px 8px 6px 6px; color: #818181; font-size: 14px;\">");
