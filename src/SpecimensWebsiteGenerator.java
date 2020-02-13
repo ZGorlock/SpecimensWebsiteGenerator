@@ -239,11 +239,11 @@ public class SpecimensWebsiteGenerator {
             List<String> taxonomyLines = Filesystem.readLines(taxonomy);
             TaxonomyMap.addSpecimen(taxonomyLines, id, name);
             for (String taxonomyLine : taxonomyLines) {
-                if (taxonomyLine.toUpperCase().startsWith("NO TAXON")) {
-                    continue;
-                }
                 String key = StringUtility.trim(taxonomyLine.substring(0, taxonomyLine.indexOf(' ')));
                 String value = StringUtility.trim(taxonomyLine.substring(taxonomyLine.indexOf(' ')).replaceAll("\\(.*$", ""));
+                if (taxonomyLine.toUpperCase().startsWith("NO TAXON") || value.isEmpty()) {
+                    System.out.println("Taxonomy Invalid: " + id);
+                }
                 content.add("\t\t<tr>");
                 content.add("\t\t\t<td class=\"td-left\"><b>" + key + "</b></td>");
                 content.add("\t\t\t<td class=\"td-right\">" + value + "</td>");
