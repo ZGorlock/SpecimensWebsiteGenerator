@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -448,8 +449,15 @@ public class SpecimensWebsiteGenerator {
         Filesystem.createDirectory(vialRacksSinkDir);
         Filesystem.writeLines(new File(vialRacksSinkDir, "main.html"), wrapHtml(null, true, false, 1));
         
-        File vialRackFileDir = new File(vialRacksSinkDir, "file");
-        Filesystem.copyDirectory(vialRacksSource, vialRackFileDir);
+        File references = new File(vialRacksSource, "references.csv");
+        if (!references.exists()) {
+            return;
+        }
+        Map<String, String> remoteLocations = new HashMap<>();
+        for (String remoteLocation : Filesystem.readLines(references)) {
+            String[] remoteLocationParts = remoteLocation.split(",");
+            remoteLocations.put(remoteLocationParts[0], remoteLocationParts[1]);
+        }
         
         List<String> content = new ArrayList<>();
         content.add("<h1>Vial Racks</h1>");
@@ -459,20 +467,28 @@ public class SpecimensWebsiteGenerator {
         
         content.add("<br>");
         content.add("<div style=\"padding-left: 10%\">");
-        for (File vialRack : Filesystem.getFiles(vialRackFileDir)) {
-            content.add("\t<a href=\"" + vialRack.getAbsolutePath().replace("\\", "/").replaceAll("^.*/file/", "file/") + "\" target=\"mainFrame\" download type=\"application/octet-stream\">" + vialRack.getName() + "</a>");
+        for (File vialRack : Filesystem.getFiles(vialRacksSource)) {
+            String remoteLocation = remoteLocations.get(vialRack.getAbsolutePath().replace("\\", "/").replaceAll("^.*/Vial Racks/", ""));
+            if (remoteLocation == null) {
+                continue;
+            }
+            content.add("\t<a href=\"https://docs.google.com/uc?export=download&id=" + remoteLocation + "\" target=\"mainFrame\" download type=\"application/octet-stream\">" + vialRack.getName() + "</a><br>");
         }
         content.add("</div>");
         content.add("<br>");
         content.add("<br>");
         content.add("");
         
-        for (File vialRackDirectory : Filesystem.getDirs(vialRackFileDir)) {
+        for (File vialRackDirectory : Filesystem.getDirs(vialRacksSource)) {
             content.add("<div style=\"padding-left: 10%\">");
             content.add("\t<p>" + vialRackDirectory.getName() + "</p>");
             content.add("\t<ul>");
             for (File vialRack : Filesystem.getFiles(vialRackDirectory)) {
-                content.add("\t\t<li><a href=\"" + vialRack.getAbsolutePath().replace("\\", "/").replaceAll("^.*/file/", "file/") + "\" target=\"mainFrame\" download type=\"application/octet-stream\">" + vialRack.getName() + "</a></li>");
+                String remoteLocation = remoteLocations.get(vialRack.getAbsolutePath().replace("\\", "/").replaceAll("^.*/Vial Racks/", ""));
+                if (remoteLocation == null) {
+                    continue;
+                }
+                content.add("\t<a href=\"https://docs.google.com/uc?export=download&id=" + remoteLocation + "\" target=\"mainFrame\" download type=\"application/octet-stream\">" + vialRack.getName() + "</a><br>");
             }
             content.add("\t</ul>");
             content.add("</div>");
