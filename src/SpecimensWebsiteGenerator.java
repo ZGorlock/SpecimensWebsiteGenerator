@@ -31,6 +31,8 @@ public class SpecimensWebsiteGenerator {
     
     private static final File sink = new File("E:/Coding/HTML/Specimens");
     
+    private static final File resources = new File("resources");
+    
     private static final boolean fullCopy = true;
     
     private static final Map<String, String> specimens = new LinkedHashMap<>();
@@ -449,7 +451,7 @@ public class SpecimensWebsiteGenerator {
         Filesystem.createDirectory(vialRacksSinkDir);
         Filesystem.writeLines(new File(vialRacksSinkDir, "main.html"), wrapHtml(null, true, false, 1));
         
-        File references = new File(vialRacksSource, "references.csv");
+        File references = new File(resources, "vialRackReferences.csv");
         if (!references.exists()) {
             return;
         }
