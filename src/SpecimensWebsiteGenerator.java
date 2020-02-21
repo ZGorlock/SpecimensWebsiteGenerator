@@ -5,6 +5,7 @@
  */
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -20,6 +21,8 @@ import common.Filesystem;
 import common.StringUtility;
 
 public class SpecimensWebsiteGenerator {
+    
+    //Constants
     
     private static final File source = new File("E:/Documents/Specimens");
     
@@ -37,25 +40,26 @@ public class SpecimensWebsiteGenerator {
     
     private static final Map<String, String> specimens = new LinkedHashMap<>();
     
+    private static final Map<String, String> vialRackReferences = new HashMap<>();
+    
     private static final TaxonomyMap taxonomyMap = new TaxonomyMap();
     
     static {
         taxonomyMap.nodeValue = "SPECIMENS";
     }
     
+    
+    //Main Method
+    
     public static void main(String[] args) throws Exception {
         cleanup();
-        
-        makeIndex();
-        makeMainPage();
-        makeStyle();
-        makeToggler();
-        makeSpecimenPages();
-        makeReferences();
-        makeVialRacks();
-        makeTreeView();
-        makeNavbar();
+        loadResources();
+        makeWebsite();
+        saveResources();
     }
+    
+    
+    //Methods
     
     private static void cleanup() throws Exception {
         Filesystem.deleteDirectory(new File(sink, "css"));
@@ -68,6 +72,41 @@ public class SpecimensWebsiteGenerator {
         Filesystem.deleteFile(new File(sink, "main.html"));
         Filesystem.deleteFile(new File(sink, "navbar.html"));
     }
+    
+    private static void loadResources() throws Exception {
+        File vialRackReferencesFile = new File(resources, "vialRackReferences.csv");
+        if (!vialRackReferencesFile.exists()) {
+            throw new FileNotFoundException("Could not find Vial Rack References resource");
+        }
+        for (String vialRackReference : Filesystem.readLines(vialRackReferencesFile)) {
+            String[] vialRackReferenceParts = vialRackReference.split(",");
+            vialRackReferences.put(vialRackReferenceParts[0], vialRackReferenceParts[1]);
+        }
+    }
+    
+    private static void makeWebsite() throws Exception {
+        makeIndex();
+        makeMainPage();
+        makeStyle();
+        makeToggler();
+        makeSpecimenPages();
+        makeReferences();
+        makeVialRacks();
+        makeTreeView();
+        makeNavbar();
+    }
+    
+    private static void saveResources() throws Exception {
+        List<String> vialRackReferencesData = new ArrayList<>();
+        for (Map.Entry<String, String> vialRackReference : vialRackReferences.entrySet()) {
+            vialRackReferencesData.add(vialRackReference.getKey() + "," + vialRackReference.getValue());
+        }
+        File vialRackReferencesFile = new File(resources, "vialRackReferences.csv");
+        Filesystem.writeLines(vialRackReferencesFile, vialRackReferencesData);
+    }
+    
+    
+    //Website Methods
     
     private static void makeIndex() throws Exception {
         File landingPage = new File(sink, "index.html");
@@ -451,16 +490,6 @@ public class SpecimensWebsiteGenerator {
         Filesystem.createDirectory(vialRacksSinkDir);
         Filesystem.writeLines(new File(vialRacksSinkDir, "main.html"), wrapHtml(null, true, false, 1));
         
-        File references = new File(resources, "vialRackReferences.csv");
-        if (!references.exists()) {
-            return;
-        }
-        Map<String, String> remoteLocations = new HashMap<>();
-        for (String remoteLocation : Filesystem.readLines(references)) {
-            String[] remoteLocationParts = remoteLocation.split(",");
-            remoteLocations.put(remoteLocationParts[0], remoteLocationParts[1]);
-        }
-        
         List<String> content = new ArrayList<>();
         content.add("<h1>Vial Racks</h1>");
         content.add("<hr>");
@@ -470,7 +499,7 @@ public class SpecimensWebsiteGenerator {
         content.add("<br>");
         content.add("<div style=\"padding-left: 10%\">");
         for (File vialRack : Filesystem.getFiles(vialRacksSource)) {
-            String remoteLocation = remoteLocations.get(vialRack.getAbsolutePath().replace("\\", "/").replaceAll("^.*/Vial Racks/", ""));
+            String remoteLocation = vialRackReferences.get(vialRack.getAbsolutePath().replace("\\", "/").replaceAll("^.*/Vial Racks/", ""));
             if (remoteLocation == null) {
                 continue;
             }
@@ -486,7 +515,7 @@ public class SpecimensWebsiteGenerator {
             content.add("\t<p>" + vialRackDirectory.getName() + "</p>");
             content.add("\t<ul>");
             for (File vialRack : Filesystem.getFiles(vialRackDirectory)) {
-                String remoteLocation = remoteLocations.get(vialRack.getAbsolutePath().replace("\\", "/").replaceAll("^.*/Vial Racks/", ""));
+                String remoteLocation = vialRackReferences.get(vialRack.getAbsolutePath().replace("\\", "/").replaceAll("^.*/Vial Racks/", ""));
                 if (remoteLocation == null) {
                     continue;
                 }
@@ -635,6 +664,9 @@ public class SpecimensWebsiteGenerator {
         }
         return "";
     }
+    
+    
+    //Inner Classes
     
     private static class TaxonomyMap {
         
