@@ -6,19 +6,19 @@
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import common.Filesystem;
 import common.StringUtility;
+import org.apache.commons.io.FileUtils;
 
 public class SpecimensWebsiteGenerator {
     
@@ -36,17 +36,38 @@ public class SpecimensWebsiteGenerator {
     
     private static final File resources = new File("resources");
     
-    private static final boolean fullCopy = true;
+    
+    //Static Fields
+    
+    private static String API_KEY = "";
+    
+    static {
+        try {
+            API_KEY = FileUtils.readFileToString(new File("apiKey"), "UTF-8");
+            if (API_KEY.isEmpty()) {
+                throw new Exception();
+            }
+        } catch (Exception e) {
+            System.out.println("Must supply a Google API key with Youtube Data API enabled in /apiKey");
+            System.exit(0);
+        }
+    }
+    
+    private static Cloudinary cloudinary;
     
     private static final Map<String, String> specimens = new LinkedHashMap<>();
     
-    private static final Map<String, String> vialRackReferences = new HashMap<>();
+    private static final Map<String, String> imageReferences = new LinkedHashMap<>();
+    
+    private static final Map<String, String> vialRackReferences = new LinkedHashMap<>();
     
     private static final TaxonomyMap taxonomyMap = new TaxonomyMap();
     
     static {
         taxonomyMap.nodeValue = "SPECIMENS";
     }
+    
+    private static final boolean fullCopy = false;
     
     
     //Main Method
@@ -74,6 +95,11 @@ public class SpecimensWebsiteGenerator {
     }
     
     private static void loadResources() throws Exception {
+        cloudinary = new Cloudinary(ObjectUtils.asMap(
+                "cloud_name", "specimens",
+                "api_key", "849193795929923",
+                "api_secret", API_KEY));
+        
         File vialRackReferencesFile = new File(resources, "vialRackReferences.csv");
         if (!vialRackReferencesFile.exists()) {
             throw new FileNotFoundException("Could not find Vial Rack References resource");
@@ -81,6 +107,15 @@ public class SpecimensWebsiteGenerator {
         for (String vialRackReference : Filesystem.readLines(vialRackReferencesFile)) {
             String[] vialRackReferenceParts = vialRackReference.split(",");
             vialRackReferences.put(vialRackReferenceParts[0], vialRackReferenceParts[1]);
+        }
+        
+        File imageReferencesFile = new File(resources, "imageReferences.csv");
+        if (!vialRackReferencesFile.exists()) {
+            throw new FileNotFoundException("Could not find Image References resource");
+        }
+        for (String imageReference : Filesystem.readLines(imageReferencesFile)) {
+            String[] imageReferenceParts = imageReference.split(",");
+            imageReferences.put(imageReferenceParts[0], imageReferenceParts[1]);
         }
     }
     
@@ -103,6 +138,13 @@ public class SpecimensWebsiteGenerator {
         }
         File vialRackReferencesFile = new File(resources, "vialRackReferences.csv");
         Filesystem.writeLines(vialRackReferencesFile, vialRackReferencesData);
+        
+        List<String> imageReferencesData = new ArrayList<>();
+        for (Map.Entry<String, String> imageReference : imageReferences.entrySet()) {
+            imageReferencesData.add(imageReference.getKey() + "," + imageReference.getValue());
+        }
+        File imageReferencesFile = new File(resources, "imageReferences.csv");
+        Filesystem.writeLines(imageReferencesFile, imageReferencesData);
     }
     
     
@@ -633,6 +675,14 @@ public class SpecimensWebsiteGenerator {
     }
     
     private static String linkImage(File source, File destDir, int index) throws Exception {
+        if (fullCopy) {
+            return linkImageFullCopy(source, destDir, index);
+        } else {
+            return linkImageReference(source);
+        }
+    }
+    
+    private static String linkImageFullCopy(File source, File destDir, int index) throws Exception {
         File imageDir = new File(destDir, "images");
         if (!imageDir.exists()) {
             Filesystem.createDirectory(imageDir);
@@ -643,16 +693,34 @@ public class SpecimensWebsiteGenerator {
                 Filesystem.createDirectory(imageDir);
             }
         }
-        File link = new File(imageDir, StringUtility.rShear(source.getName(), 4) + StringUtility.rSnip(source.getName(), 4).toLowerCase());
         
-        if (fullCopy) {
-            Filesystem.copyFile(source, link);
-        } else {
-            Path linkPath = link.toPath();
-            Path sourcePath = source.toPath();
-            Files.createLink(linkPath, sourcePath);
-        }
+        File link = new File(imageDir, StringUtility.rShear(source.getName(), 4) + StringUtility.rSnip(source.getName(), 4).toLowerCase());
+        Filesystem.copyFile(source, link);
         return "images/" + ((index >= 0) ? (index + "/") : "") + link.getName();
+    }
+    
+    @SuppressWarnings("rawtypes")
+    private static String linkImageReference(File source) throws Exception {
+        boolean isVideo = source.getName().endsWith(".mp4") || source.getName().endsWith(".MP4");
+        String imageKey = source.getAbsolutePath().replace("\\", "/").replaceAll("^.*/Specimens/", "");
+        if (imageReferences.containsKey(imageKey)) {
+            return "http://res.cloudinary.com/specimens/" + (isVideo ? "video" : "image") + "/upload/" + imageReferences.get(imageKey);
+        }
+        
+        String url;
+        try {
+            Map options = isVideo ? ObjectUtils.asMap("resource_type", "video") : ObjectUtils.emptyMap();
+            Map upload = cloudinary.uploader().upload(source, options);
+            url = (String) upload.get("url");
+        } catch (Exception e) {
+            System.out.println("Error uploading: " + source.getAbsolutePath());
+            throw e;
+        }
+        
+        imageReferences.put(imageKey, url.replace("http://res.cloudinary.com/specimens/" + (isVideo ? "video" : "image") + "/upload/", ""));
+        saveResources();
+        
+        return url;
     }
     
     private static String getUrlFromShortcut(File shortcut) throws Exception {

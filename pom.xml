@@ -23,6 +23,9 @@
         <!-- LOGGING -->
         <slf4j.version>1.7.26</slf4j.version>
         <logback.version>1.1.7</logback.version>
+
+        <!-- PHOTOS -->
+        <cloudinary.version>1.25.0</cloudinary.version>
     </properties>
     
     <dependencies>
@@ -77,6 +80,13 @@
                     <artifactId>slf4j-api</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <!-- PHOTOS -->
+        <dependency>
+            <groupId>com.cloudinary</groupId>
+            <artifactId>cloudinary-http44</artifactId>
+            <version>${cloudinary.version}</version>
         </dependency>
     </dependencies>
     
