@@ -133,16 +133,12 @@ public class SpecimensWebsiteGenerator {
     
     private static void saveResources() throws Exception {
         List<String> vialRackReferencesData = new ArrayList<>();
-        for (Map.Entry<String, String> vialRackReference : vialRackReferences.entrySet()) {
-            vialRackReferencesData.add(vialRackReference.getKey() + "," + vialRackReference.getValue());
-        }
+        vialRackReferences.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(e -> vialRackReferencesData.add(e.getKey() + "," + e.getValue()));
         File vialRackReferencesFile = new File(resources, "vialRackReferences.csv");
         Filesystem.writeLines(vialRackReferencesFile, vialRackReferencesData);
         
         List<String> imageReferencesData = new ArrayList<>();
-        for (Map.Entry<String, String> imageReference : imageReferences.entrySet()) {
-            imageReferencesData.add(imageReference.getKey() + "," + imageReference.getValue());
-        }
+        imageReferences.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(e -> imageReferencesData.add(e.getKey() + "," + e.getValue()));
         File imageReferencesFile = new File(resources, "imageReferences.csv");
         Filesystem.writeLines(imageReferencesFile, imageReferencesData);
     }
