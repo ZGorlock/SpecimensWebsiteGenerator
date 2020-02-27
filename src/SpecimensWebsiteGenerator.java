@@ -548,7 +548,36 @@ public class SpecimensWebsiteGenerator {
         content.add("<br>");
         content.add("");
         
-        for (File vialRackDirectory : Filesystem.getDirs(vialRacksSource)) {
+        List<File> vialRackDirectories = Filesystem.getDirs(vialRacksSource);
+        vialRackDirectories.sort((o1, o2) -> {
+            Double o1Number = null;
+            try {
+                o1Number = Double.parseDouble(o1.getName().substring(0, o1.getName().indexOf(' ')));
+            } catch (Exception ignored) {
+            }
+            
+            Double o2Number = null;
+            try {
+                o2Number = Double.parseDouble(o2.getName().substring(0, o2.getName().indexOf(' ')));
+            } catch (Exception ignored) {
+            }
+            
+            if (o1Number == null) {
+                if (o2Number == null) {
+                    return o1.getName().compareTo(o2.getName());
+                } else {
+                    return 1;
+                }
+            } else {
+                if (o2Number == null) {
+                    return -1;
+                } else {
+                    return o1Number.compareTo(o2Number);
+                }
+            }
+        });
+        
+        for (File vialRackDirectory : vialRackDirectories) {
             content.add("<div style=\"padding-left: 10%\">");
             content.add("\t<p>" + vialRackDirectory.getName() + "</p>");
             content.add("\t<ul>");
