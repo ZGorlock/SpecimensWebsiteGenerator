@@ -267,6 +267,7 @@ public class SpecimensWebsiteGenerator {
         }
         content.add("</p>");
         content.add("<br>");
+        content.add("");
         
         content.add("<h1>" + name + "</h1>");
         content.add("<hr>");
@@ -385,6 +386,29 @@ public class SpecimensWebsiteGenerator {
         }
         
         makeSpecimenImagePopupScript(specimenSinkDir, images);
+        
+        content.add("\t<p width=\"75%\">");
+        if (!first) {
+            String prev = StringUtility.padZero(String.valueOf(Integer.parseInt(id) - 1), 4);
+            content.add("\t\t<span style=\"float: left; padding-left: 8px;\">" +
+                    "<a href=\"../" + prev + "/content.html\" target=\"mainFrame\">" +
+                    "&lt;&lt; Previous (" + prev + ")" +
+                    "</a></span>");
+        } else {
+            content.add("\t\t<span style\"float: left;\"/>");
+        }
+        if (!last) {
+            String next = StringUtility.padZero(String.valueOf(Integer.parseInt(id) + 1), 4);
+            content.add("\t\t<span style=\"float: right; padding-right: 8px;\">" +
+                    "<a href=\"../" + next + "/content.html\" target=\"mainFrame\">" +
+                    "(" + next + ") Next &gt;&gt;" +
+                    "</a></span>");
+        } else {
+            content.add("\t\t<span style\"float: right;\"/>");
+        }
+        content.add("\t</p>");
+        content.add("\t<br>");
+        content.add("");
         
         File reference = new File(specimenDir, "Reference");
         if (reference.exists()) {
