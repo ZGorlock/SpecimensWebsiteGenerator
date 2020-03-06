@@ -7,6 +7,7 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -670,8 +671,11 @@ public class SpecimensWebsiteGenerator {
         content.add("<ul id=\"myUL\" style=\"padding: 6px 8px 6px 6px; color: #818181; font-size: 14px;\">");
         content.add("\t<li><span class=\"caret caret-down\">SPECIMENS</span>");
         content.add("\t\t<ul class=\"nested active\" style=\"padding-left: 20px;\">");
-        for (Map.Entry<String, String> specimen : specimens.entrySet()) {
-            content.add("\t\t\t<li><span><a href=\"specimens/" + specimen.getKey() + "/content.html\" target=\"mainFrame\">" + specimen.getValue() + "</a></span></li>");
+        
+        List<String> specimenKeys = new ArrayList<>(specimens.keySet());
+        Collections.reverse(specimenKeys);
+        for (String specimenKey : specimenKeys) {
+            content.add("\t\t\t<li><span><a href=\"specimens/" + specimenKey + "/content.html\" target=\"mainFrame\">" + specimens.get(specimenKey) + "</a></span></li>");
         }
         content.add("\t\t</ul>");
         content.add("\t</li>");
