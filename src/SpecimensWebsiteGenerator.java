@@ -85,11 +85,11 @@ public class SpecimensWebsiteGenerator {
     
     private static void cleanup() throws Exception {
         Filesystem.deleteDirectory(new File(sink, "css"));
-        Filesystem.deleteDirectory(new File(sink, "images"));
-        Filesystem.deleteDirectory(new File(sink, "specimens"));
         Filesystem.deleteDirectory(new File(sink, "references"));
-        Filesystem.deleteDirectory(new File(sink, "vialRacks"));
+        Filesystem.deleteDirectory(new File(sink, "scripts"));
+        Filesystem.deleteDirectory(new File(sink, "specimens"));
         Filesystem.deleteDirectory(new File(sink, "treeview"));
+        Filesystem.deleteDirectory(new File(sink, "vialRacks"));
         Filesystem.deleteFile(new File(sink, "index.html"));
         Filesystem.deleteFile(new File(sink, "main.html"));
         Filesystem.deleteFile(new File(sink, "navbar.html"));
@@ -124,7 +124,7 @@ public class SpecimensWebsiteGenerator {
         makeIndex();
         makeMainPage();
         makeStyle();
-        makeToggler();
+        makeTogglers();
         makeSpecimenPages();
         makeReferences();
         makeVialRacks();
@@ -205,23 +205,87 @@ public class SpecimensWebsiteGenerator {
         Filesystem.writeLines(style, content);
     }
     
-    private static void makeToggler() throws Exception {
+    private static void makeTogglers() throws Exception {
+        makeNavbarToggler();
+        makeTreeViewToggler();
+    }
+    
+    private static void makeNavbarToggler() throws Exception {
         File scriptsDir = new File(sink, "scripts");
         Filesystem.createDirectory(scriptsDir);
         
         List<String> content = new ArrayList<>();
         content.add("$(document).ready(function() {");
         content.add("\tvar toggler = document.getElementsByClassName(\"caret\");");
+        content.add("");
+        
         content.add("\tvar i;");
         content.add("\tfor (i = 0; i < toggler.length; i++) {");
+        content.add("");
+        
+        content.add("\t\ttoggler[i].setAttribute('id', i);");
+        content.add("\t\tif (sessionStorage.getItem('navbarCollapsed' + i) === \"true\") {");
+        content.add("\t\t\ttoggler[i].parentElement.querySelector(\".nested\").classList.toggle(\"active\");");
+        content.add("\t\t\ttoggler[i].classList.toggle(\"caret-down\");");
+        content.add("\t\t}");
+        content.add("");
+        
         content.add("\t\ttoggler[i].addEventListener(\"click\", function() {");
         content.add("\t\t\tthis.parentElement.querySelector(\".nested\").classList.toggle(\"active\");");
         content.add("\t\t\tthis.classList.toggle(\"caret-down\");");
+        content.add("");
+        
+        content.add("\t\t\tif (sessionStorage.getItem('navbarCollapsed' + this.getAttribute('id')) == \"true\") {");
+        content.add("\t\t\t\tsessionStorage.setItem('navbarCollapsed' + this.getAttribute('id'), false);");
+        content.add("\t\t\t} else {");
+        content.add("\t\t\t\tsessionStorage.setItem('navbarCollapsed' + this.getAttribute('id'), true);");
+        content.add("\t\t\t}");
+        content.add("");
+        
         content.add("\t\t});");
         content.add("\t}");
         content.add("});");
         
-        Filesystem.writeLines(new File(scriptsDir, "toggler.js"), content);
+        Filesystem.writeLines(new File(scriptsDir, "navbarToggler.js"), content);
+    }
+    
+    private static void makeTreeViewToggler() throws Exception {
+        File scriptsDir = new File(sink, "scripts");
+        Filesystem.createDirectory(scriptsDir);
+        
+        List<String> content = new ArrayList<>();
+        content.add("$(document).ready(function() {");
+        content.add("\tvar toggler = document.getElementsByClassName(\"caret\");");
+        content.add("");
+        
+        content.add("\tvar i;");
+        content.add("\tfor (i = 0; i < toggler.length; i++) {");
+        content.add("");
+        
+        content.add("\t\ttoggler[i].setAttribute('id', i);");
+        content.add("\t\tif (sessionStorage.getItem('treeViewCollapsed' + i) === \"true\") {");
+        content.add("\t\t\ttoggler[i].parentElement.querySelector(\".nested\").classList.toggle(\"active\");");
+        content.add("\t\t\ttoggler[i].classList.toggle(\"caret-down\");");
+        content.add("\t\t}");
+        content.add("");
+        
+        content.add("\t\ttoggler[i].addEventListener(\"click\", function() {");
+        content.add("\t\t\tthis.parentElement.querySelector(\".nested\").classList.toggle(\"active\");");
+        content.add("\t\t\tthis.classList.toggle(\"caret-down\");");
+        content.add("");
+        
+        content.add("\t\t\tif (sessionStorage.getItem('treeViewCollapsed' + this.getAttribute('id')) == \"true\") {");
+        content.add("\t\t\t\tsessionStorage.setItem('treeViewCollapsed' + this.getAttribute('id'), false);");
+        content.add("\t\t\t} else {");
+        content.add("\t\t\t\tsessionStorage.setItem('treeViewCollapsed' + this.getAttribute('id'), true);");
+        content.add("\t\t\t}");
+        content.add("");
+        
+        content.add("\t\t});");
+        content.add("\t}");
+        content.add("});");
+        
+        Filesystem.writeLines(new File(scriptsDir, "treeViewToggler.js"), content);
     }
     
     private static void makeSpecimenPages() throws Exception {
@@ -638,7 +702,7 @@ public class SpecimensWebsiteGenerator {
         content.add("</ul>");
         content.add("");
         
-        Filesystem.writeLines(new File(treeViewDirectory, "content.html"), wrapHtml(content, false, false, 1, "../scripts/toggler.js"));
+        Filesystem.writeLines(new File(treeViewDirectory, "content.html"), wrapHtml(content, false, false, 1, "../scripts/treeViewToggler.js"));
     }
     
     private static List<String> makeSubTreeView(TaxonomyMap node, int indent) {
@@ -689,7 +753,7 @@ public class SpecimensWebsiteGenerator {
         content.add("<br>");
         content.add("");
         
-        Filesystem.writeLines(new File(sink, "navbar.html"), wrapHtml(content, false, true, 0, "scripts/toggler.js"));
+        Filesystem.writeLines(new File(sink, "navbar.html"), wrapHtml(content, false, true, 0, "scripts/navbarToggler.js"));
     }
     
     private static List<String> wrapHtml(List<String> content, boolean index, boolean navbar, int depth, String... scripts) throws Exception {
