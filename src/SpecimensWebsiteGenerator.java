@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,7 @@ import java.util.regex.Pattern;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.cloudinary.utils.StringUtils;
 import common.Filesystem;
 import common.StringUtility;
 import org.apache.commons.io.FileUtils;
@@ -63,6 +65,8 @@ public class SpecimensWebsiteGenerator {
     private static final Map<String, String> vialRackReferences = new LinkedHashMap<>();
     
     private static final TaxonomyMap taxonomyMap = new TaxonomyMap();
+    
+    private static final Map<String, String> taxonomyDescriptionMap = new HashMap<>();
     
     static {
         taxonomyMap.nodeValue = "SPECIMENS";
@@ -388,7 +392,17 @@ public class SpecimensWebsiteGenerator {
                 String key = StringUtility.trim(taxonomyLine.substring(0, taxonomyLine.indexOf(' ')));
                 String value = StringUtility.trim(taxonomyLine.substring(taxonomyLine.indexOf(' ')).replaceAll("\\(.*$", ""));
                 if (taxonomyLine.toUpperCase().startsWith("NO TAXON") || value.isEmpty()) {
-                    System.out.println("Taxonomy Invalid: " + id);
+                    System.err.println("Taxonomy Invalid: " + id);
+                }
+                if (!key.equals("Species") && !key.equals("Subspecies")) {
+                    String description = StringUtility.trim(taxonomyLine.replace(key + " " + value, ""));
+                    if (!taxonomyDescriptionMap.containsKey(value)) {
+                        taxonomyDescriptionMap.put(value, description);
+                    } else {
+                        if (!taxonomyDescriptionMap.get(value).equals(description)) {
+                            System.err.println("Taxonomy description for: " + value + " " + description + " does not match " + taxonomyDescriptionMap.get(value));
+                        }
+                    }
                 }
                 content.add("\t\t<tr>");
                 content.add("\t\t\t<td class=\"td-left\"><b>" + key + "</b></td>");
@@ -713,6 +727,7 @@ public class SpecimensWebsiteGenerator {
         content.add(tab + "<li><span" + (isTerminal ? "" : (" class=\"caret caret-down\"")) + ">" +
                 (isTerminal ? ("<a href=\"" + "../specimens/" + node.nodeValue.substring(0, node.nodeValue.indexOf(' ')) + "/content.html\" target=\"mainFrame\">") : "") +
                 (node.nodeKey.isEmpty() ? "" : (node.nodeKey + ": ")) + node.nodeValue +
+                (!StringUtils.isEmpty(taxonomyDescriptionMap.get(node.nodeValue)) ? (" - " + taxonomyDescriptionMap.get(node.nodeValue)) : "") +
                 (isTerminal ? "</a>" : "") +
                 "</span>");
         if (!isTerminal) {
