@@ -40,16 +40,16 @@ public class SpecimensWebsiteGenerator {
     
     //Static Fields
     
-    private static String API_KEY = "";
+    private static final List<String> API_KEY = new ArrayList<>();
     
     static {
         try {
-            API_KEY = FileUtils.readFileToString(new File("apiKey"), "UTF-8");
-            if (API_KEY.isEmpty()) {
+            API_KEY.addAll(FileUtils.readLines(new File("apiKey"), "UTF-8"));
+            if (API_KEY.size() != 3) {
                 throw new Exception();
             }
         } catch (Exception e) {
-            System.out.println("Must supply a Google API key with Youtube Data API enabled in /apiKey");
+            System.out.println("Must supply Cloudinary API keys in /apiKey:\ncloud_name\napi_key\napi_secret");
             System.exit(0);
         }
     }
@@ -97,9 +97,9 @@ public class SpecimensWebsiteGenerator {
     
     private static void loadResources() throws Exception {
         cloudinary = new Cloudinary(ObjectUtils.asMap(
-                "cloud_name", "specimens",
-                "api_key", "849193795929923",
-                "api_secret", API_KEY));
+                "cloud_name", API_KEY.get(0),
+                "api_key", API_KEY.get(1),
+                "api_secret", API_KEY.get(2)));
         
         File vialRackReferencesFile = new File(resources, "vialRackReferences.csv");
         if (!vialRackReferencesFile.exists()) {
