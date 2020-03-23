@@ -7,6 +7,7 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -355,7 +356,7 @@ public class SpecimensWebsiteGenerator {
                     idLine = idLine.replace(referenceMatcher.group(), "<a href=\"../" + referenceMatcher.group("id") + "/content.html\" target=\"mainFrame\">" + referenceMatcher.group("id") + "</a>");
                 }
                 idLines.add(idLine);
-                if (idLine.toUpperCase().contains("FINALIZED") || idLine.toUpperCase().contains("FINALIZATION") || idLine.toUpperCase().contains("REPLACED")) {
+                if (idLine.toUpperCase().contains("LOST") || idLine.toUpperCase().contains("DESTROYED") || idLine.toUpperCase().contains("REPLACED")) {
                     finalized = true;
                 }
             }
@@ -422,9 +423,18 @@ public class SpecimensWebsiteGenerator {
         if (photosDir.exists()) {
             List<File> photoSubDirs = Filesystem.getDirs(photosDir);
             int photoSubDirIndex = 0;
+            List<String> validPhotoSubDirs = Arrays.asList("From Store", "From Vendor", "Preliminary Attempt", "Alive", "Dead", "Preparation", "Suspension", "Pre-Finalization", "Final");
             for (File photoSubDir : photoSubDirs) {
+                if (!photoSubDir.getName().matches("\\d\\s-\\s.+")) {
+                    System.err.println("Photo directory: " + photoSubDir.getName() + " is invalid for: " + id);
+                }
                 
                 String photoDirName = photoSubDir.getName().replaceAll("\\d\\s-\\s", "");
+                String photoDirIndex = photoSubDir.getName().replaceAll("\\s-\\s[a-zA-Z\\-\\s]+", "");
+                if (!validPhotoSubDirs.contains(photoDirName) || !String.valueOf(photoSubDirIndex).equals(photoDirIndex)) {
+                    System.err.println("Photo directory name: " + photoDirName + " is invalid for: " + id);
+                }
+                
                 if (photoDirName.equalsIgnoreCase("FINAL")) {
                     finalized = true;
                 }
