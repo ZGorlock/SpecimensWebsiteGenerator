@@ -356,7 +356,7 @@ public class SpecimensWebsiteGenerator {
                     idLine = idLine.replace(referenceMatcher.group(), "<a href=\"../" + referenceMatcher.group("id") + "/content.html\" target=\"mainFrame\">" + referenceMatcher.group("id") + "</a>");
                 }
                 idLines.add(idLine);
-                if (idLine.toUpperCase().contains("LOST") || idLine.toUpperCase().contains("DESTROYED") || idLine.toUpperCase().contains("REPLACED")) {
+                if (idLine.toUpperCase().contains("LOST BEFORE") || idLine.toUpperCase().contains("DESTROYED BEFORE") || idLine.toUpperCase().contains("REPLACED WITH")) {
                     finalized = true;
                 }
             }
