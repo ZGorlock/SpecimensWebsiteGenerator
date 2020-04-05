@@ -146,7 +146,6 @@ public final class ListUtility {
      * @param list The list to duplicate.
      * @param <T>  The type of the list.
      * @return A list of double size with duplicated elements.
-     *
      * @see #duplicateListInOrder(List, int)
      */
     public static <T> List<T> duplicateListInOrder(List<T> list) {
@@ -207,7 +206,6 @@ public final class ListUtility {
      * @param list The list to sort.
      * @param <T>  The type of the list.
      * @return A list of sorted by the number of occurrences of each entry in the list.
-     *
      * @see #sortListByNumberOfOccurrences(List, boolean)
      */
     public static <T> List<T> sortListByNumberOfOccurrences(List<T> list) {

@@ -87,7 +87,6 @@ public final class Internet {
      *
      * @param url The url address to download the html from.
      * @return The retrieved Document or null if there was an error.
-     *
      * @see Jsoup#connect(String)
      */
     public static Document getHtml(String url) {
@@ -118,7 +117,6 @@ public final class Internet {
      * @param url      The url to the file to download.
      * @param download The file to download to.
      * @return The downloaded file or null if there was an error.
-     *
      * @see FileUtils#copyURLToFile(URL, File, int, int)
      */
     public static File downloadFile(String url, File download) {
@@ -145,7 +143,6 @@ public final class Internet {
      *
      * @param url The url to the file to download.
      * @return The downloaded file or null if there was an error.
-     *
      * @see #downloadFile(String, File)
      */
     public static File downloadFile(String url) {
