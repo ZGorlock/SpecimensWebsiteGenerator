@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 import java.util.regex.Matcher;
 
 import org.apache.commons.io.FileUtils;
@@ -1805,6 +1806,40 @@ public final class Filesystem {
      */
     public static String generatePath(String... paths) {
         return generatePath(false, paths);
+    }
+    
+    /**
+     * Creates a temporary file and returns the created file.
+     *
+     * @param extension The extension of the temporary file.
+     * @return The created temporary file.
+     */
+    public static File createTemporaryFile(String extension) {
+        File tmpFile = new File("tmp", UUID.randomUUID().toString() + extension);
+        Filesystem.createFile(tmpFile);
+        return tmpFile;
+    }
+    
+    /**
+     * Creates a temporary file and returns the created file.
+     *
+     * @return The created temporary file.
+     *
+     * @see #createTemporaryFile(String)
+     */
+    public static File createTemporaryFile() {
+        return createTemporaryFile("");
+    }
+    
+    /**
+     * Creates a temporary directory and returns the created directory.
+     *
+     * @return The created temporary directory.
+     */
+    public static File createTemporaryDirectory() {
+        File tmpDir = new File("tmp", UUID.randomUUID().toString());
+        Filesystem.createDirectory(tmpDir);
+        return tmpDir;
     }
     
     /**
