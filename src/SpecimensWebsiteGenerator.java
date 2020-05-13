@@ -423,7 +423,7 @@ public class SpecimensWebsiteGenerator {
         if (photosDir.exists()) {
             List<File> photoSubDirs = Filesystem.getDirs(photosDir);
             int photoSubDirIndex = 0;
-            List<String> validPhotoSubDirs = Arrays.asList("From Store", "From Vendor", "Preliminary Attempt", "Alive", "Dead", "Preparation", "Suspension", "Pre-Finalization", "Final");
+            List<String> validPhotoSubDirs = Arrays.asList("From Store", "From Vendor", "Preliminary Attempt", "Alive", "Dead", "Preparation", "Suspension", "Pre-Finalization", "Final", "Exhumation", "Re-Finalization");
             for (File photoSubDir : photoSubDirs) {
                 if (!photoSubDir.getName().matches("\\d\\s-\\s.+")) {
                     System.err.println("Photo directory: " + photoSubDir.getName() + " is invalid for: " + id);
