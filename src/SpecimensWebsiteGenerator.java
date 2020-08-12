@@ -854,6 +854,7 @@ public class SpecimensWebsiteGenerator {
             Map options = isVideo ? ObjectUtils.asMap("resource_type", "video") : ObjectUtils.emptyMap();
             Map upload = cloudinary.uploader().upload(source, options);
             url = (String) upload.get("url");
+            System.out.println("Uploaded: " + source.getAbsolutePath());
         } catch (Exception e) {
             System.out.println("Error uploading: " + source.getAbsolutePath());
             throw e;
