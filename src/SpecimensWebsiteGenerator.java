@@ -356,7 +356,10 @@ public class SpecimensWebsiteGenerator {
                     idLine = idLine.replace(referenceMatcher.group(), "<a href=\"../" + referenceMatcher.group("id") + "/content.html\" target=\"mainFrame\">" + referenceMatcher.group("id") + "</a>");
                 }
                 idLines.add(idLine);
-                if (idLine.toUpperCase().contains("LOST BEFORE") || idLine.toUpperCase().contains("DESTROYED BEFORE") || idLine.toUpperCase().contains("REPLACED WITH")) {
+                if (idLine.toUpperCase().contains("LOST BEFORE") || idLine.toUpperCase().contains("DESTROYED BEFORE") ||
+                        idLine.toUpperCase().contains("LOST DURING") || idLine.toUpperCase().contains("DESTROYED DURING") ||
+                        idLine.toUpperCase().contains("LOST AFTER") || idLine.toUpperCase().contains("DESTROYED AFTER") ||
+                        idLine.toUpperCase().contains("REPLACED WITH")) {
                     finalized = true;
                 }
             }
