@@ -1,11 +1,12 @@
 /*
  * File:    SpecimensWebsiteGenerator.java
- * Package:
+ * Package: main
  * Author:  Zachary Gill
  */
 
+package main;
+
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -17,72 +18,53 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.cloudinary.Cloudinary;
-import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 import common.Filesystem;
 import common.StringUtility;
-import org.apache.commons.io.FileUtils;
+import utility.ResourceUtility;
 
 public class SpecimensWebsiteGenerator {
     
     //Constants
     
-    private static final File source = new File("E:/Documents/Specimens");
+    public static final File source = new File("E:/Documents/Specimens");
     
-    private static final File specimensSource = new File(source, "Specimens");
+    public static final File specimensSource = new File(source, "Specimens");
     
-    private static final File referencesSource = new File(source, "References");
+    public static final File referencesSource = new File(source, "References");
     
-    private static final File vialRacksSource = new File(source, "Vial Racks");
+    public static final File vialRacksSource = new File(source, "Vial Racks");
     
-    private static final File sink = new File("E:/Coding/HTML/Specimens");
+    public static final File sink = new File("E:/Coding/HTML/Specimens");
     
-    private static final File resources = new File("resources");
+    public static final List<String> categories = Arrays.asList(
+            "From Store", "From Vendor", "Preliminary Attempt", 
+            "Alive", "Dead", "Preparation", "Suspension", "Pre-Finalization", 
+            "Final", "Exhumation", "Re-Finalization");
     
     
     //Static Fields
     
-    private static final List<String> API_KEY = new ArrayList<>();
+    private static Map<String, String> specimens = new LinkedHashMap<>();
     
-    static {
-        try {
-            API_KEY.addAll(FileUtils.readLines(new File("apiKey"), "UTF-8"));
-            if (API_KEY.size() != 3) {
-                throw new Exception();
-            }
-        } catch (Exception e) {
-            System.out.println("Must supply Cloudinary API keys in /apiKey:\ncloud_name\napi_key\napi_secret");
-            System.exit(0);
-        }
-    }
+    private static TaxonomyMap taxonomyMap = new TaxonomyMap();
     
-    private static Cloudinary cloudinary;
-    
-    private static final Map<String, String> specimens = new LinkedHashMap<>();
-    
-    private static final Map<String, String> imageReferences = new LinkedHashMap<>();
-    
-    private static final Map<String, String> vialRackReferences = new LinkedHashMap<>();
-    
-    private static final TaxonomyMap taxonomyMap = new TaxonomyMap();
-    
-    private static final Map<String, String> taxonomyDescriptionMap = new HashMap<>();
+    private static Map<String, String> taxonomyDescriptionMap = new HashMap<>();
     
     static {
         taxonomyMap.nodeValue = "SPECIMENS";
     }
     
-    private static final boolean fullCopy = false;
-    
     
     //Main Method
     
     public static void main(String[] args) throws Exception {
+        ResourceUtility.loadResources();
+        
         cleanup();
-        loadResources();
         makeWebsite();
-        saveResources();
+        
+        ResourceUtility.saveResources();
     }
     
     
@@ -100,31 +82,6 @@ public class SpecimensWebsiteGenerator {
         Filesystem.deleteFile(new File(sink, "navbar.html"));
     }
     
-    private static void loadResources() throws Exception {
-        cloudinary = new Cloudinary(ObjectUtils.asMap(
-                "cloud_name", API_KEY.get(0),
-                "api_key", API_KEY.get(1),
-                "api_secret", API_KEY.get(2)));
-        
-        File vialRackReferencesFile = new File(resources, "vialRackReferences.csv");
-        if (!vialRackReferencesFile.exists()) {
-            throw new FileNotFoundException("Could not find Vial Rack References resource");
-        }
-        for (String vialRackReference : Filesystem.readLines(vialRackReferencesFile)) {
-            String[] vialRackReferenceParts = vialRackReference.split(",");
-            vialRackReferences.put(vialRackReferenceParts[0], vialRackReferenceParts[1]);
-        }
-        
-        File imageReferencesFile = new File(resources, "imageReferences.csv");
-        if (!vialRackReferencesFile.exists()) {
-            throw new FileNotFoundException("Could not find Image References resource");
-        }
-        for (String imageReference : Filesystem.readLines(imageReferencesFile)) {
-            String[] imageReferenceParts = imageReference.split(",");
-            imageReferences.put(imageReferenceParts[0], imageReferenceParts[1]);
-        }
-    }
-    
     private static void makeWebsite() throws Exception {
         makeIndex();
         makeMainPage();
@@ -135,18 +92,6 @@ public class SpecimensWebsiteGenerator {
         makeVialRacks();
         makeTreeView();
         makeNavbar();
-    }
-    
-    private static void saveResources() throws Exception {
-        List<String> vialRackReferencesData = new ArrayList<>();
-        vialRackReferences.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(e -> vialRackReferencesData.add(e.getKey() + "," + e.getValue()));
-        File vialRackReferencesFile = new File(resources, "vialRackReferences.csv");
-        Filesystem.writeLines(vialRackReferencesFile, vialRackReferencesData);
-        
-        List<String> imageReferencesData = new ArrayList<>();
-        imageReferences.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(e -> imageReferencesData.add(e.getKey() + "," + e.getValue()));
-        File imageReferencesFile = new File(resources, "imageReferences.csv");
-        Filesystem.writeLines(imageReferencesFile, imageReferencesData);
     }
     
     
@@ -168,7 +113,7 @@ public class SpecimensWebsiteGenerator {
         File coverImage = new File(specimensSource, "Specimens.jpg");
         if (coverImage.exists()) {
             content.add("<center>");
-            content.add("\t<img src=\"" + linkImage(coverImage, sink, -1) + "\" width=\"70%\" height=\"70%\"/>");
+            content.add("\t<img src=\"" + ResourceUtility.linkImage(coverImage, sink, -1) + "\" width=\"70%\" height=\"70%\"/>");
             content.add("</center>");
             content.add("<br>");
             content.add("");
@@ -376,7 +321,7 @@ public class SpecimensWebsiteGenerator {
         
         File bugGuide = new File(specimenDir, "BugGuide Submission.url");
         if (bugGuide.exists()) {
-            String bugGuideUrl = getUrlFromShortcut(bugGuide);
+            String bugGuideUrl = ResourceUtility.getUrlFromShortcut(bugGuide);
             content.add("\t<p>");
             content.add("\t\t<a href=\"" + bugGuideUrl + "\" target=\"mainFrame\">BugGuide Submission</a>");
             content.add("\t</p>");
@@ -426,7 +371,6 @@ public class SpecimensWebsiteGenerator {
         if (photosDir.exists()) {
             List<File> photoSubDirs = Filesystem.getDirs(photosDir);
             int photoSubDirIndex = 0;
-            List<String> validPhotoSubDirs = Arrays.asList("From Store", "From Vendor", "Preliminary Attempt", "Alive", "Dead", "Preparation", "Suspension", "Pre-Finalization", "Final", "Exhumation", "Re-Finalization");
             for (File photoSubDir : photoSubDirs) {
                 if (!photoSubDir.getName().matches("\\d\\s-\\s.+")) {
                     System.err.println("Photo directory: " + photoSubDir.getName() + " is invalid for: " + id);
@@ -434,7 +378,7 @@ public class SpecimensWebsiteGenerator {
                 
                 String photoDirName = photoSubDir.getName().replaceAll("\\d\\s-\\s", "");
                 String photoDirIndex = photoSubDir.getName().replaceAll("\\s-\\s[a-zA-Z\\-\\s]+", "");
-                if (!validPhotoSubDirs.contains(photoDirName) || !String.valueOf(photoSubDirIndex).equals(photoDirIndex)) {
+                if (!categories.contains(photoDirName) || !String.valueOf(photoSubDirIndex).equals(photoDirIndex)) {
                     System.err.println("Photo directory name: " + photoDirName + " is invalid for: " + id);
                 }
                 
@@ -447,7 +391,7 @@ public class SpecimensWebsiteGenerator {
                 List<File> photoList = Filesystem.getFiles(photoSubDir);
                 int index = 0;
                 for (File photo : photoList) {
-                    String image = linkImage(photo, specimenSinkDir, photoSubDirIndex);
+                    String image = ResourceUtility.linkImage(photo, specimenSinkDir, photoSubDirIndex);
                     String imageId = "img_" + photoDirName.toLowerCase().replace(" ", "_") + index;
                     if (photo.getName().toLowerCase().endsWith("mp4")) {
                         content.add("\t<a id=\"" + imageId + "\" href=\"#\" target=\"_blank\"><video width=\"720\" height=\"480\" controls><source src=\"" + image + "\" type=\"video/mp4\"></video></a><br>");
@@ -508,17 +452,17 @@ public class SpecimensWebsiteGenerator {
             Map<String, String> referenceMap = new LinkedHashMap<>();
             for (File referenceEntry : references) {
                 if (referenceEntry.getName().toUpperCase().contains("BUGGUIDE")) {
-                    referenceMap.putIfAbsent(referenceEntry.getName(), getUrlFromShortcut(referenceEntry));
+                    referenceMap.putIfAbsent(referenceEntry.getName(), ResourceUtility.getUrlFromShortcut(referenceEntry));
                 }
             }
             for (File referenceEntry : references) {
                 if (!referenceEntry.getName().toUpperCase().contains("BUGGUIDE") && !referenceEntry.getName().toUpperCase().contains("WIKIPEDIA")) {
-                    referenceMap.putIfAbsent(referenceEntry.getName(), getUrlFromShortcut(referenceEntry));
+                    referenceMap.putIfAbsent(referenceEntry.getName(), ResourceUtility.getUrlFromShortcut(referenceEntry));
                 }
             }
             for (File referenceEntry : references) {
                 if (referenceEntry.getName().toUpperCase().contains("WIKIPEDIA")) {
-                    referenceMap.putIfAbsent(referenceEntry.getName(), getUrlFromShortcut(referenceEntry));
+                    referenceMap.putIfAbsent(referenceEntry.getName(), ResourceUtility.getUrlFromShortcut(referenceEntry));
                 }
             }
             
@@ -617,7 +561,7 @@ public class SpecimensWebsiteGenerator {
             content.add("\t<p>" + referencesDirectory.getName() + "</p>");
             content.add("\t<ul>");
             for (File reference : Filesystem.getFiles(referencesDirectory)) {
-                content.add("\t\t<li><a href=\"" + getUrlFromShortcut(reference) + "\" target=\"_blank\">" + StringUtility.rShear(reference.getName(), 4) + "</a></li>");
+                content.add("\t\t<li><a href=\"" + ResourceUtility.getUrlFromShortcut(reference) + "\" target=\"_blank\">" + StringUtility.rShear(reference.getName(), 4) + "</a></li>");
             }
             content.add("\t</ul>");
             content.add("</div>");
@@ -629,7 +573,7 @@ public class SpecimensWebsiteGenerator {
         content.add("\t<p>Other</p>");
         content.add("\t<ul>");
         for (File reference : Filesystem.getFiles(referencesSource)) {
-            content.add("\t\t<li><a href=\"" + getUrlFromShortcut(reference) + "\" target=\"_blank\">" + StringUtility.rShear(reference.getName(), 4) + "</a></li>");
+            content.add("\t\t<li><a href=\"" + ResourceUtility.getUrlFromShortcut(reference) + "\" target=\"_blank\">" + StringUtility.rShear(reference.getName(), 4) + "</a></li>");
         }
         content.add("\t</ul>");
         content.add("</div>");
@@ -653,7 +597,7 @@ public class SpecimensWebsiteGenerator {
         content.add("<br>");
         content.add("<div style=\"padding-left: 10%\">");
         for (File vialRack : Filesystem.getFiles(vialRacksSource)) {
-            String remoteLocation = vialRackReferences.get(vialRack.getAbsolutePath().replace("\\", "/").replaceAll("^.*/Vial Racks/", ""));
+            String remoteLocation = ResourceUtility.linkVialRack(vialRack);
             if (remoteLocation == null) {
                 continue;
             }
@@ -698,7 +642,7 @@ public class SpecimensWebsiteGenerator {
             content.add("\t<p>" + vialRackDirectory.getName() + "</p>");
             content.add("\t<ul>");
             for (File vialRack : Filesystem.getFiles(vialRackDirectory)) {
-                String remoteLocation = vialRackReferences.get(vialRack.getAbsolutePath().replace("\\", "/").replaceAll("^.*/Vial Racks/", ""));
+                String remoteLocation = ResourceUtility.linkVialRack(vialRack);
                 if (remoteLocation == null) {
                     continue;
                 }
@@ -817,66 +761,6 @@ public class SpecimensWebsiteGenerator {
         wrapped.add("");
         wrapped.add("</html>");
         return wrapped;
-    }
-    
-    private static String linkImage(File source, File destDir, int index) throws Exception {
-        if (fullCopy) {
-            return linkImageFullCopy(source, destDir, index);
-        } else {
-            return linkImageReference(source);
-        }
-    }
-    
-    private static String linkImageFullCopy(File source, File destDir, int index) throws Exception {
-        File imageDir = new File(destDir, "images");
-        if (!imageDir.exists()) {
-            Filesystem.createDirectory(imageDir);
-        }
-        if (index >= 0) {
-            imageDir = new File(imageDir, String.valueOf(index));
-            if (!imageDir.exists()) {
-                Filesystem.createDirectory(imageDir);
-            }
-        }
-        
-        File link = new File(imageDir, StringUtility.rShear(source.getName(), 4) + StringUtility.rSnip(source.getName(), 4).toLowerCase());
-        Filesystem.copyFile(source, link);
-        return "images/" + ((index >= 0) ? (index + "/") : "") + link.getName();
-    }
-    
-    @SuppressWarnings("rawtypes")
-    private static String linkImageReference(File source) throws Exception {
-        boolean isVideo = source.getName().endsWith(".mp4") || source.getName().endsWith(".MP4");
-        String imageKey = source.getAbsolutePath().replace("\\", "/").replaceAll("^.*/Specimens/", "");
-        if (imageReferences.containsKey(imageKey)) {
-            return "http://res.cloudinary.com/specimens/" + (isVideo ? "video" : "image") + "/upload/" + imageReferences.get(imageKey);
-        }
-        
-        String url;
-        try {
-            Map options = isVideo ? ObjectUtils.asMap("resource_type", "video") : ObjectUtils.emptyMap();
-            Map upload = cloudinary.uploader().upload(source, options);
-            url = (String) upload.get("url");
-            System.out.println("Uploaded: " + source.getAbsolutePath());
-        } catch (Exception e) {
-            System.out.println("Error uploading: " + source.getAbsolutePath());
-            throw e;
-        }
-        
-        imageReferences.put(imageKey, url.replace("http://res.cloudinary.com/specimens/" + (isVideo ? "video" : "image") + "/upload/", ""));
-        saveResources();
-        
-        return url;
-    }
-    
-    private static String getUrlFromShortcut(File shortcut) throws Exception {
-        String content = StringUtility.removeWhiteSpace(Filesystem.readFileToString(shortcut));
-        Pattern getUrlPattern = Pattern.compile("^.*URL=(?<url>.+)$");
-        Matcher getUrlMatcher = getUrlPattern.matcher(content);
-        if (getUrlMatcher.matches()) {
-            return getUrlMatcher.group("url");
-        }
-        return "";
     }
     
     

@@ -1,10 +1,10 @@
 /*
  * File:    FindSizeInBugGuideSubmission.java
- * Package: utility
+ * Package: tool
  * Author:  Zachary Gill
  */
 
-package utility;
+package tool;
 
 import java.io.File;
 import java.util.regex.Matcher;
@@ -12,24 +12,20 @@ import java.util.regex.Pattern;
 
 import common.Filesystem;
 import common.Internet;
-import common.StringUtility;
+import main.SpecimensWebsiteGenerator;
 import org.jsoup.nodes.Document;
+import utility.ResourceUtility;
 
 public class FindSizeInBugGuideSubmissions {
-    
-    //Constants
-    
-    private static final File source = new File("E:/Documents/Specimens/Specimens");
-    
     
     //Main Method
     
     public static void main(String[] args) throws Exception {
         Pattern sizePattern = Pattern.compile(".*>Size:\\s(?<size>[0-9.]+mm)\\s*<.*");
-        for (File specimenDir : Filesystem.getDirs(source)) {
+        for (File specimenDir : Filesystem.getDirs(SpecimensWebsiteGenerator.source)) {
             File bugGuideSubmission = new File(specimenDir, "BugGuide Submission.url");
             if (bugGuideSubmission.exists()) {
-                String url = getUrlFromShortcut(bugGuideSubmission);
+                String url = ResourceUtility.getUrlFromShortcut(bugGuideSubmission);
                 Document doc = Internet.getHtml(url);
                 if (doc != null) {
                     Matcher sizeMatcher = sizePattern.matcher(doc.toString().replaceAll("\r?\n", ""));
@@ -40,19 +36,6 @@ public class FindSizeInBugGuideSubmissions {
                 }
             }
         }
-    }
-    
-    
-    //Functions
-    
-    private static String getUrlFromShortcut(File shortcut) throws Exception {
-        String content = StringUtility.removeWhiteSpace(Filesystem.readFileToString(shortcut));
-        Pattern getUrlPattern = Pattern.compile("^.*URL=(?<url>.+)$");
-        Matcher getUrlMatcher = getUrlPattern.matcher(content);
-        if (getUrlMatcher.matches()) {
-            return getUrlMatcher.group("url");
-        }
-        return "";
     }
     
 }
