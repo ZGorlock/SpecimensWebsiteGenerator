@@ -67,4 +67,14 @@ public class CloudinaryUtility {
         return url;
     }
     
+    public static void delete(String publicId) throws Exception {
+        try {
+            cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+            System.out.println("Deleted: " + publicId);
+        } catch (Exception e) {
+            System.err.println("Error deleting: " + publicId);
+            throw e;
+        }
+    }
+    
 }

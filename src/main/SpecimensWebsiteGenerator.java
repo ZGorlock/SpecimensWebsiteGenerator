@@ -38,8 +38,8 @@ public class SpecimensWebsiteGenerator {
     public static final File sink = new File("E:/Coding/HTML/Specimens");
     
     public static final List<String> categories = Arrays.asList(
-            "From Store", "From Vendor", "Preliminary Attempt", 
-            "Alive", "Dead", "Preparation", "Suspension", "Pre-Finalization", 
+            "From Store", "From Vendor", "Preliminary Attempt",
+            "Alive", "Dead", "Preparation", "Suspension", "Pre-Finalization",
             "Final", "Exhumation", "Re-Finalization");
     
     
@@ -400,7 +400,7 @@ public class SpecimensWebsiteGenerator {
                         content.add("\t\t<div id=\"div_close_" + imageId + "\" class=\"img_div_close\">X</div>");
                         content.add("\t</div>");
                     } else {
-                        content.add("\t<a id=\"" + imageId + "\" href=\"#\" target=\"_blank\"><img src=\"" + image + "\" width=\"50%\" height=\"50%\"/></a><br>");
+                        content.add("\t<a id=\"" + imageId + "\" href=\"#\" target=\"_blank\"><img src=\"" + image + "\" width=\"50%\" height=\"50%\" style=\"max-height: 100vh; object-fit: contain;\"/></a><br>");
                         content.add("\t<div id=\"div_" + imageId + "\" class=\"img_div\">");
                         content.add("\t\t<img class=\"img_div_img\" src=\"" + image + "\"/>");
                         content.add("\t\t<div id=\"div_close_" + imageId + "\" class=\"img_div_close\">X</div>");
