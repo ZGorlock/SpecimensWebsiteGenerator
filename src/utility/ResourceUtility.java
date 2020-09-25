@@ -113,7 +113,10 @@ public class ResourceUtility {
             return "http://res.cloudinary.com/specimens/" + (isVideo ? "video" : "image") + "/upload/" + imageReferences.get(imageKey);
         }
         
-        String url = CloudinaryUtility.upload(source);
+        String folder = imageKey.substring(0, 4);
+        folder = folder.matches("\\d{4}") ? folder : "";
+        
+        String url = CloudinaryUtility.upload(source, folder);
         imageReferences.put(imageKey, url.replace("http://res.cloudinary.com/specimens/" + (isVideo ? "video" : "image") + "/upload/", ""));
         saveResources();
         

@@ -8,6 +8,7 @@ package utility;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -51,20 +52,32 @@ public class CloudinaryUtility {
     }
     
     @SuppressWarnings("rawtypes")
-    public static String upload(File file) throws Exception {
+    public static String upload(File file, String folder) throws Exception {
         boolean isVideo = file.getName().toLowerCase().endsWith(".mp4");
         
         String url;
         try {
-            Map options = isVideo ? ObjectUtils.asMap("resource_type", "video") : ObjectUtils.emptyMap();
+            Map<String, Object> options = new HashMap<>();
+            options.put("type", "upload");
+            options.put("access_mode", "public");
+            options.put("access_type", "anonymous");
+            options.put("resource_type", isVideo ? "video" : "image");
+            options.put("folder", folder);
+            options.put("tags", folder);
+            
             Map upload = cloudinary.uploader().upload(file, options);
             url = (String) upload.get("url");
+            
             System.out.println("Uploaded: " + file.getAbsolutePath());
         } catch (Exception e) {
             System.out.println("Error uploading: " + file.getAbsolutePath());
             throw e;
         }
         return url;
+    }
+    
+    public static String upload(File file) throws Exception {
+        return upload(file, "");
     }
     
     public static void delete(String publicId) throws Exception {

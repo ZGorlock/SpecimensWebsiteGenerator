@@ -1,5 +1,5 @@
 /*
- * File:    VerifyPhotos.java
+ * File:    VerifyPhotosExist.java
  * Package: tool
  * Author:  Zachary Gill
  */
@@ -12,7 +12,7 @@ import java.util.Map;
 import main.SpecimensWebsiteGenerator;
 import utility.ResourceUtility;
 
-public class VerifyPhotos {
+public class VerifyPhotosExist {
     
     //Main Method
     
