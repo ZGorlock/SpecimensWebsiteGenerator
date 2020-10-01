@@ -47,6 +47,8 @@ public class SpecimensWebsiteGenerator {
     
     private static Map<String, String> specimens = new LinkedHashMap<>();
     
+    private static List<String> favorites = new ArrayList<>();
+    
     private static TaxonomyMap taxonomyMap = new TaxonomyMap();
     
     private static Map<String, String> taxonomyDescriptionMap = new HashMap<>();
@@ -364,6 +366,11 @@ public class SpecimensWebsiteGenerator {
             content.add("\t<hr>");
             content.add("\t<br>");
             content.add("");
+        }
+        
+        File favorite = new File(specimenDir, "favorite.txt");
+        if (favorite.exists()) {
+            favorites.add(id);
         }
         
         File photosDir = new File(specimenDir, "Photos");
@@ -712,6 +719,19 @@ public class SpecimensWebsiteGenerator {
         Collections.reverse(specimenKeys);
         for (String specimenKey : specimenKeys) {
             content.add("\t\t\t<li><span><a href=\"specimens/" + specimenKey + "/content.html\" target=\"mainFrame\">" + specimens.get(specimenKey) + "</a></span></li>");
+        }
+        content.add("\t\t</ul>");
+        content.add("\t</li>");
+        content.add("</ul>");
+        
+        content.add("<ul id=\"myUL\" style=\"padding: 6px 8px 6px 6px; color: #818181; font-size: 14px;\">");
+        content.add("\t<li><span class=\"caret caret-down\">FAVORITES</span>");
+        content.add("\t\t<ul class=\"nested active\" style=\"padding-left: 20px;\">");
+        
+        List<String> favoriteKeys = new ArrayList<>(favorites);
+        Collections.reverse(favoriteKeys);
+        for (String favoriteKey : favoriteKeys) {
+            content.add("\t\t\t<li><span><a href=\"specimens/" + favoriteKey + "/content.html\" target=\"mainFrame\">" + specimens.get(favoriteKey) + "</a></span></li>");
         }
         content.add("\t\t</ul>");
         content.add("\t</li>");
