@@ -42,6 +42,8 @@ public class SpecimensWebsiteGenerator {
             "Alive", "Dead", "Preparation", "Suspension", "Pre-Finalization",
             "Final", "Exhumation", "Re-Finalization");
     
+    private static final boolean openLinksInternally = false;
+    
     
     //Static Fields
     
@@ -325,7 +327,7 @@ public class SpecimensWebsiteGenerator {
         if (bugGuide.exists()) {
             String bugGuideUrl = ResourceUtility.getUrlFromShortcut(bugGuide);
             content.add("\t<p>");
-            content.add("\t\t<a href=\"" + bugGuideUrl + "\" target=\"mainFrame\">BugGuide Submission</a>");
+            content.add("\t\t<a href=\"" + bugGuideUrl + "\" target=\"" + (openLinksInternally ? "mainFrame" : "#") + "\">BugGuide Submission</a>");
             content.add("\t</p>");
             content.add("");
             content.add("\t<br>");
@@ -475,7 +477,7 @@ public class SpecimensWebsiteGenerator {
             
             content.add("\t<p>References</p>");
             for (Map.Entry<String, String> referenceEntry : referenceMap.entrySet()) {
-                content.add("\t<a href=\"" + referenceEntry.getValue() + "\" target=\"mainFrame\">" + StringUtility.rShear(referenceEntry.getKey(), 4) + "</a><br>");
+                content.add("\t<a href=\"" + referenceEntry.getValue() + "\" target=\"" + (openLinksInternally ? "mainFrame" : "#") + "\">" + StringUtility.rShear(referenceEntry.getKey(), 4) + "</a><br>");
             }
             
             content.add("");
@@ -529,11 +531,11 @@ public class SpecimensWebsiteGenerator {
             content.add("\t});");
             content.add("\t$('#div_" + image + "').click(function(){");
             content.add("\t\tprepareHide();");
-            content.add("\t$(\"#div_" + image + "\").hide();");
+            content.add("\t\t$(\"#div_" + image + "\").hide();");
             content.add("\t});");
             content.add("\t$('#div_close_" + image + "').click(function(){");
             content.add("\t\tprepareHide();");
-            content.add("\t$(\"#div_" + image + "\").hide();");
+            content.add("\t\t$(\"#div_" + image + "\").hide();");
             content.add("\t});");
             content.add("");
         }
