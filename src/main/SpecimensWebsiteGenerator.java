@@ -117,7 +117,7 @@ public class SpecimensWebsiteGenerator {
         File coverImage = new File(specimensSource, "Specimens.jpg");
         if (coverImage.exists()) {
             content.add("<center>");
-            content.add("\t<img src=\"" + ResourceUtility.linkImage(coverImage, sink, -1) + "\" width=\"70%\" height=\"70%\"/>");
+            content.add("\t<img src=\"" + ResourceUtility.linkImage(coverImage, sink, -1) + "\" width=\"70%\" height=\"70%\" style=\"max-height: 80vh; object-fit: contain;\"/>");
             content.add("</center>");
             content.add("<br>");
             content.add("");
