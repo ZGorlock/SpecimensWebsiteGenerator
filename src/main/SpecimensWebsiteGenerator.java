@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
 import com.cloudinary.utils.StringUtils;
 import common.Filesystem;
 import common.StringUtility;
+import utility.CloudinaryUtility;
 import utility.ResourceUtility;
 
 public class SpecimensWebsiteGenerator {
@@ -84,6 +85,32 @@ public class SpecimensWebsiteGenerator {
         Filesystem.deleteFile(new File(sink, "index.html"));
         Filesystem.deleteFile(new File(sink, "main.html"));
         Filesystem.deleteFile(new File(sink, "navbar.html"));
+        cleanupPhotos();
+    }
+    
+    private static void cleanupPhotos() {
+        Map<String, String> imageReferences = ResourceUtility.getImageReferences();
+        for (Map.Entry<String, String> imageReference : imageReferences.entrySet()) {
+            String image = imageReference.getKey();
+            File imageFile = new File(specimensSource, image);
+            String reference = imageReference.getValue();
+            String publicId = reference.substring(reference.lastIndexOf('/') + 1, reference.lastIndexOf('.'));
+            
+            if (!imageFile.exists()) {
+                try {
+                    CloudinaryUtility.delete(publicId);
+                } catch (Exception e) {
+                    continue;
+                }
+                
+                imageReferences.remove(image);
+                try {
+                    ResourceUtility.saveResources();
+                } catch (Exception e) {
+                    System.err.println("Failed to remove image reference: " + image + "," + image);
+                }
+            }
+        }
     }
     
     private static void makeWebsite() throws Exception {
