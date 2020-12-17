@@ -90,25 +90,31 @@ public class SpecimensWebsiteGenerator {
     
     private static void cleanupPhotos() {
         Map<String, String> imageReferences = ResourceUtility.getImageReferences();
+        List<String> deleteImages = new ArrayList<>();
         for (Map.Entry<String, String> imageReference : imageReferences.entrySet()) {
             String image = imageReference.getKey();
             File imageFile = new File(specimensSource, image);
-            String reference = imageReference.getValue();
-            String publicId = reference.substring(reference.lastIndexOf('/') + 1, reference.lastIndexOf('.'));
             
             if (!imageFile.exists()) {
-                try {
-                    CloudinaryUtility.delete(publicId);
-                } catch (Exception e) {
-                    continue;
-                }
-                
-                imageReferences.remove(image);
-                try {
-                    ResourceUtility.saveResources();
-                } catch (Exception e) {
-                    System.err.println("Failed to remove image reference: " + image + "," + image);
-                }
+                deleteImages.add(image);
+            }
+        }
+        
+        for (String deleteImage : deleteImages) {
+            String reference = imageReferences.get(deleteImage);
+            String publicId = reference.substring(reference.lastIndexOf('/') + 1, reference.lastIndexOf('.'));
+            
+            try {
+                CloudinaryUtility.delete(publicId);
+            } catch (Exception e) {
+                continue;
+            }
+            
+            imageReferences.remove(deleteImage);
+            try {
+                ResourceUtility.saveResources();
+            } catch (Exception e) {
+                System.err.println("Failed to remove image reference: " + deleteImage + "," + deleteImage);
             }
         }
     }
