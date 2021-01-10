@@ -112,22 +112,25 @@ public class PictureResizer {
     }
     
     private static void processPicturePreserveMetadata(File source, File target, String type) throws Exception {
-        ImageInputStream imageInputStream = ImageIO.createImageInputStream(new FileInputStream(source));
-        ImageReader reader = ImageIO.getImageReaders(imageInputStream).next();
-        reader.setInput(imageInputStream);
-        IIOMetadata metadata = reader.getImageMetadata(0);
-        BufferedImage image = reader.read(0);
+        try (FileInputStream fileInputStream = new FileInputStream(source);
+             FileOutputStream fileOutputStream = new FileOutputStream(target)) {
         
-        ImageOutputStream imageOutputStream = ImageIO.createImageOutputStream(new FileOutputStream(target));
-        ImageWriter writer = ImageIO.getImageWriter(reader);
-        writer.setOutput(imageOutputStream);
-        ImageWriteParam params = writer.getDefaultWriteParam();
-//        params.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-//        params.setCompressionQuality(.05f);
-        writer.write(null, new IIOImage(image, null, null), params);
-        writer.dispose();
-        ImageIO.write(image, type, imageOutputStream);
-        imageOutputStream.close();
+            ImageInputStream imageInputStream = ImageIO.createImageInputStream(fileInputStream);
+            ImageReader reader = ImageIO.getImageReaders(imageInputStream).next();
+            reader.setInput(imageInputStream);
+            IIOMetadata metadata = reader.getImageMetadata(0);
+            BufferedImage data = reader.read(0);
+            imageInputStream.flush();
+        
+            ImageOutputStream imageOutputStream = ImageIO.createImageOutputStream(fileOutputStream);
+            ImageWriter writer = ImageIO.getImageWriter(reader);
+            writer.setOutput(imageOutputStream);
+            ImageWriteParam params = writer.getDefaultWriteParam();
+            writer.write(null, new IIOImage(data, null, null), params);
+            writer.dispose();
+            ImageIO.write(data, type, imageOutputStream);
+            imageOutputStream.flush();
+        }
     }
     
     private static void processPictureLoseMetadata(File source, File target, String type) throws Exception {
@@ -139,8 +142,8 @@ public class PictureResizer {
                 double scale = (double) maxDimension / dim;
                 AffineTransform transform = new AffineTransform();
                 transform.scale(scale, scale);
-                AffineTransformOp transformOp = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR);
-                BufferedImage scaled = new BufferedImage((int) (image.getWidth() * scale), (int) (image.getHeight() * scale), BufferedImage.TYPE_3BYTE_BGR);
+                AffineTransformOp transformOp = new AffineTransformOp(transform, AffineTransformOp.TYPE_BICUBIC);
+                BufferedImage scaled = new BufferedImage((int) (image.getWidth() * scale), (int) (image.getHeight() * scale), image.getType());
                 image = transformOp.filter(image, scaled);
             }
         }
