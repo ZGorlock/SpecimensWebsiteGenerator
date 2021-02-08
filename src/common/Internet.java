@@ -19,7 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
@@ -96,14 +96,14 @@ public final class Internet {
             }
             
             return Jsoup.connect(url)
-                        .ignoreContentType(true)
-                        .maxBodySize(0)
-                        .userAgent("Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.80 Safari/537.36")
-                        .referrer("http://www.google.com")
-                        .timeout(5000)
-                        .followRedirects(true)
-                        .execute()
-                        .parse();
+                    .ignoreContentType(true)
+                    .maxBodySize(0)
+                    .userAgent("Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.80 Safari/537.36")
+                    .referrer("http://www.google.com")
+                    .timeout(5000)
+                    .followRedirects(true)
+                    .execute()
+                    .parse();
         } catch (IOException ignored) {
             logger.trace("Unable to download html from URL: " + url);
             return null;

@@ -94,8 +94,8 @@ public class PictureResizer {
     private static void processPicture(File picture) throws Exception {
         String type = StringUtility.rSnip(picture.getName().toLowerCase(), 3);
         File tmp = new File("output", picture.getName()
-                                             .replaceAll("(\\.[jJ][pP][gG])+", ".jpg")
-                                             .replaceAll("(\\.[pP][nN][gG])+", ".png"));
+                .replaceAll("(\\.[jJ][pP][gG])+", ".jpg")
+                .replaceAll("(\\.[pP][nN][gG])+", ".png"));
         File output = new File(picture.getParentFile(), tmp.getName());
         
         if (saveBackup) {
@@ -114,14 +114,14 @@ public class PictureResizer {
     private static void processPicturePreserveMetadata(File source, File target, String type) throws Exception {
         try (FileInputStream fileInputStream = new FileInputStream(source);
              FileOutputStream fileOutputStream = new FileOutputStream(target)) {
-        
+            
             ImageInputStream imageInputStream = ImageIO.createImageInputStream(fileInputStream);
             ImageReader reader = ImageIO.getImageReaders(imageInputStream).next();
             reader.setInput(imageInputStream);
             IIOMetadata metadata = reader.getImageMetadata(0);
             BufferedImage data = reader.read(0);
             imageInputStream.flush();
-        
+            
             ImageOutputStream imageOutputStream = ImageIO.createImageOutputStream(fileOutputStream);
             ImageWriter writer = ImageIO.getImageWriter(reader);
             writer.setOutput(imageOutputStream);
