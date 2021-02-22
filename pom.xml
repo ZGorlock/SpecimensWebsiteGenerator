@@ -121,7 +121,7 @@
     <build>
         <directory>${project.basedir}/bin</directory>
         <finalName>${project.artifactId}-${project.version}</finalName>
-    
+        
         <sourceDirectory>${project.basedir}/src</sourceDirectory>
         <outputDirectory>${project.basedir}/bin/classes</outputDirectory>
         
