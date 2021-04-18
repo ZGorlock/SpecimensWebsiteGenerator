@@ -363,14 +363,20 @@ public class SpecimensWebsiteGenerator {
             content.add("\t\t<a href=\"" + bugGuideUrl + "\" target=\"" + (openLinksInternally ? "mainFrame" : "#") + "\">BugGuide Submission</a>");
             content.add("\t</p>");
             content.add("");
-            content.add("\t<br>");
-            content.add("\t<hr>");
-            content.add("\t<br>");
-            content.add("");
         }
+        String thisPageUrl = "https://zgorlock.github.io/Specimens/specimens/" + StringUtility.padZero(id, 4) + "/main.html";
+        content.add("\t<p>");
+        content.add("\t\t<a href=\"" + thisPageUrl + "\" target=\"" + (openLinksInternally ? "mainFrame" : "#") + "\">Link to This Page</a>");
+        content.add("\t</p>");
+        content.add("");
+        content.add("\t<br>");
+        content.add("\t<hr>");
+        content.add("\t<br>");
+        content.add("");
         
         File taxonomy = new File(specimenDir, "taxonomy.txt");
         if (taxonomy.exists()) {
+            content.add("\t<p>");
             content.add("\t<table>");
             List<String> taxonomyLines = Filesystem.readLines(taxonomy);
             TaxonomyMap.addSpecimen(taxonomyLines, id, name);
@@ -396,6 +402,7 @@ public class SpecimensWebsiteGenerator {
                 content.add("\t\t</tr>");
             }
             content.add("\t</table>");
+            content.add("\t</p>");
             content.add("");
             content.add("\t<br>");
             content.add("\t<hr>");
