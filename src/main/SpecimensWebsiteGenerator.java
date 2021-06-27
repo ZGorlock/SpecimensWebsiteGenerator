@@ -36,7 +36,7 @@ public class SpecimensWebsiteGenerator {
     
     public static final File vialRacksSource = new File(source, "Vial Racks");
     
-    public static final File sink = new File("E:/Coding/HTML/Specimens");
+    public static final File sink = new File("F:/HTML/Specimens");
     
     public static final List<String> categories = Arrays.asList(
             "From Store", "From Vendor", "Preliminary Attempt",
