@@ -393,7 +393,7 @@ public class SpecimensWebsiteGenerator {
                         taxonomyDescriptionMap.put(value, description);
                     } else {
                         if (!taxonomyDescriptionMap.get(value).equals(description)) {
-                            System.err.println("Taxonomy description for: " + value + " " + description + " does not match " + taxonomyDescriptionMap.get(value));
+                            System.err.println("Taxonomy description for: " + name + " - " + value + " " + description + " does not match " + taxonomyDescriptionMap.get(value));
                         }
                     }
                 }
