@@ -37,7 +37,7 @@
         <logback.version>1.2.0</logback.version>
         
         <!-- INTERNET -->
-        <jsoup.version>1.12.1</jsoup.version>
+        <jsoup.version>1.14.2</jsoup.version>
         
         <!-- PHOTOS -->
         <cloudinary.version>1.25.0</cloudinary.version>
