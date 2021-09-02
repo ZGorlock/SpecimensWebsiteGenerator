@@ -42,7 +42,7 @@ public class PictureResizer {
     
     private static final boolean saveBackup = true;
     
-    private static final boolean limitDimensions = false; //aspect ratio will be preserved
+    private static final boolean limitDimensions = true; //aspect ratio will be preserved
     
     private static final int maxDimension = 3072;
     
