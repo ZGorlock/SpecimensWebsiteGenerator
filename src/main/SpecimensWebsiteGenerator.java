@@ -439,6 +439,10 @@ public class SpecimensWebsiteGenerator {
                 content.add("\t<br>");
                 
                 List<File> photoList = Filesystem.getFiles(photoSubDir);
+                if (photoList.isEmpty()) {
+                    System.err.println("Photo directory: " + photoSubDir.getName() + " is empty for: " + id);
+                }
+                
                 int index = 0;
                 for (File photo : photoList) {
                     String image = ResourceUtility.linkImage(photo, specimenSinkDir, photoSubDirIndex);
