@@ -355,6 +355,8 @@ public class SpecimensWebsiteGenerator {
             content.add("\t<hr>");
             content.add("\t<br>");
             content.add("");
+        } else {
+            System.err.println("Missing ID: " + id);
         }
         
         File bugGuide = new File(specimenDir, "BugGuide Submission.url");
@@ -409,6 +411,8 @@ public class SpecimensWebsiteGenerator {
             content.add("\t<hr>");
             content.add("\t<br>");
             content.add("");
+        } else {
+            System.err.println("Missing Taxonomy: " + id);
         }
         
         File favorite = new File(specimenDir, "favorite.txt");
@@ -473,6 +477,8 @@ public class SpecimensWebsiteGenerator {
                 
                 photoSubDirIndex++;
             }
+        } else {
+            System.err.println("Missing Photo directory: " + id);
         }
         
         makeSpecimenImagePopupScript(specimenSinkDir, images);
