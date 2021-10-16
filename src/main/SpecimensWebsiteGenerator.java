@@ -446,6 +446,17 @@ public class SpecimensWebsiteGenerator {
                 if (photoList.isEmpty()) {
                     System.err.println("Photo directory: " + photoSubDir.getName() + " is empty for: " + id);
                 }
+                for (int i = 0; i < photoList.size(); i++) {
+                    File photo = photoList.get(i);
+                    String fileType = Filesystem.getFileType(photo);
+                    if (!fileType.equals(fileType.toLowerCase())) {
+                        File photoTmp = new File(photo.getParentFile(), photo.getName().replace(("." + fileType), ("tmp." + fileType.toLowerCase())));
+                        Filesystem.moveFile(photo, photoTmp);
+                        photo = new File(photoTmp.getParentFile(), photoTmp.getName().replace(("tmp." + fileType.toLowerCase()), ("." + fileType.toLowerCase())));
+                        Filesystem.moveFile(photoTmp, photo);
+                        photoList.set(i, photo);
+                    }
+                }
                 
                 int index = 0;
                 for (File photo : photoList) {
