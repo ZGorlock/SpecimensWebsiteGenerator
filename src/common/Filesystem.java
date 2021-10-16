@@ -1783,6 +1783,17 @@ public final class Filesystem {
     }
     
     /**
+     * Returns the file type of a file.
+     *
+     * @param file The file.
+     * @return The file type of the file.
+     */
+    public static String getFileType(File file) {
+        return (file.getName().contains(".")) ?
+               file.getName().substring(file.getName().lastIndexOf('.') + 1) : "";
+    }
+    
+    /**
      * Creates a temporary file and returns the created file.
      *
      * @param extension The extension of the temporary file.
