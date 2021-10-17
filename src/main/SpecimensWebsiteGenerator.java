@@ -19,6 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.cloudinary.utils.StringUtils;
+import commons.access.Archive;
 import commons.access.Filesystem;
 import commons.string.StringUtility;
 import utility.CloudinaryUtility;
@@ -202,6 +203,9 @@ public class SpecimensWebsiteGenerator {
     private static void makeAssets() throws Exception {
         File assetsDir = new File(sink, "assets");
         Filesystem.createDirectory(assetsDir);
+        
+        File faviconArchive = new File("resources/assets/favicon.zip");
+        Archive.extract(faviconArchive, assetsDir);
         
         File starIcon = new File("resources/assets/star.png");
         Filesystem.copyFile(starIcon, new File(assetsDir, starIcon.getName()));
@@ -880,6 +884,7 @@ public class SpecimensWebsiteGenerator {
                 wrapped.add("\t\t<script src=\"" + script + "\" type=\"text/javascript\"></script>");
             }
         }
+        wrapped.addAll(generateFaviconLinks(depth));
         wrapped.add("\t</head>");
         wrapped.add("");
         wrapped.add("\t<body>");
@@ -897,6 +902,29 @@ public class SpecimensWebsiteGenerator {
         wrapped.add("");
         wrapped.add("</html>");
         return wrapped;
+    }
+    
+    private static List<String> generateFaviconLinks(int depth) {
+        String depthNavigation = StringUtility.repeatString("../", depth);
+        List<String> faviconLinks = new ArrayList<>();
+        faviconLinks.add("\t\t<link rel=\"apple-touch-icon\" sizes=\"57x57\" href=\"" + depthNavigation + "assets/favicon/apple-icon-57x57.png\">");
+        faviconLinks.add("\t\t<link rel=\"apple-touch-icon\" sizes=\"60x60\" href=\"" + depthNavigation + "assets/favicon/apple-icon-60x60.png\">");
+        faviconLinks.add("\t\t<link rel=\"apple-touch-icon\" sizes=\"72x72\" href=\"" + depthNavigation + "assets/favicon/apple-icon-72x72.png\">");
+        faviconLinks.add("\t\t<link rel=\"apple-touch-icon\" sizes=\"76x76\" href=\"" + depthNavigation + "assets/favicon/apple-icon-76x76.png\">");
+        faviconLinks.add("\t\t<link rel=\"apple-touch-icon\" sizes=\"114x114\" href=\"" + depthNavigation + "assets/favicon/apple-icon-114x114.png\">");
+        faviconLinks.add("\t\t<link rel=\"apple-touch-icon\" sizes=\"120x120\" href=\"" + depthNavigation + "assets/favicon/apple-icon-120x120.png\">");
+        faviconLinks.add("\t\t<link rel=\"apple-touch-icon\" sizes=\"144x144\" href=\"" + depthNavigation + "assets/favicon/apple-icon-144x144.png\">");
+        faviconLinks.add("\t\t<link rel=\"apple-touch-icon\" sizes=\"152x152\" href=\"" + depthNavigation + "assets/favicon/apple-icon-152x152.png\">");
+        faviconLinks.add("\t\t<link rel=\"apple-touch-icon\" sizes=\"180x180\" href=\"" + depthNavigation + "assets/favicon/apple-icon-180x180.png\">");
+        faviconLinks.add("\t\t<link rel=\"icon\" type=\"image/png\" sizes=\"192x192\"  href=\"" + depthNavigation + "assets/favicon/android-icon-192x192.png\">");
+        faviconLinks.add("\t\t<link rel=\"icon\" type=\"image/png\" sizes=\"32x32\" href=\"" + depthNavigation + "assets/favicon/favicon-32x32.png\">");
+        faviconLinks.add("\t\t<link rel=\"icon\" type=\"image/png\" sizes=\"96x96\" href=\"" + depthNavigation + "assets/favicon/favicon-96x96.png\">");
+        faviconLinks.add("\t\t<link rel=\"icon\" type=\"image/png\" sizes=\"16x16\" href=\"" + depthNavigation + "assets/favicon/favicon-16x16.png\">");
+        faviconLinks.add("\t\t<link rel=\"manifest\" href=\"" + depthNavigation + "assets/favicon/manifest.json\">");
+        faviconLinks.add("\t\t<meta name=\"msapplication-TileColor\" content=\"#ffffff\">");
+        faviconLinks.add("\t\t<meta name=\"msapplication-TileImage\" content=\"/ms-icon-144x144.png\">");
+        faviconLinks.add("\t\t<meta name=\"theme-color\" content=\"#ffffff\">");
+        return faviconLinks;
     }
     
     
