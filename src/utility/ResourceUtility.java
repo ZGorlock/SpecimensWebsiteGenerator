@@ -15,8 +15,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import common.Filesystem;
-import common.StringUtility;
+import commons.access.Filesystem;
+import commons.string.StringUtility;
 
 public class ResourceUtility {
     

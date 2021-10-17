@@ -10,8 +10,8 @@ import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import common.Filesystem;
-import common.Internet;
+import commons.access.Filesystem;
+import commons.access.Internet;
 import main.SpecimensWebsiteGenerator;
 import org.jsoup.nodes.Document;
 import utility.ResourceUtility;

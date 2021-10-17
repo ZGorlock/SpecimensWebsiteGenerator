@@ -1,24 +1,30 @@
 /*
  * File:    StringUtility.java
- * Package: dla.resource.utility
+ * Package: commons.string
  * Author:  Zachary Gill
+ * Repo:    https://github.com/ZGorlock/Java-Commons
  */
 
-package common;
+package commons.string;
 
+import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A resource class which provides additional String functionality.
+ * A resource class that provides additional string functionality.
  */
 public final class StringUtility {
     
@@ -30,74 +36,87 @@ public final class StringUtility {
     private static final Logger logger = LoggerFactory.getLogger(StringUtility.class);
     
     
+    //Constants
+    
+    /**
+     * A regex pattern for an alphanumeric string.
+     */
+    public static final Pattern ALPHANUMERIC_PATTERN = Pattern.compile("[a-zA-Z0-9]*");
+    
+    /**
+     * A regex pattern for an alphabetic string.
+     */
+    public static final Pattern ALPHABETIC_PATTERN = Pattern.compile("[a-zA-Z]*");
+    
+    /**
+     * A regex pattern for a numeric string.
+     */
+    public static final Pattern NUMERIC_PATTERN = Pattern.compile("-?(?:[0-9]*\\.)?[0-9]+");
+    
+    /**
+     * A regex pattern for a symbol string.
+     */
+    public static final Pattern SYMBOL_PATTERN = Pattern.compile("[^a-zA-Z0-9]*");
+    
+    /**
+     * A regex pattern for a whitespace string.
+     */
+    public static final Pattern WHITESPACE_PATTERN = Pattern.compile("[\\s\0]*");
+    
+    /**
+     * A pattern for extracting the starting indent of a string.
+     */
+    public static final Pattern INDENT_SPACE_PATTERN = Pattern.compile("^(?<indent>\\s*(?:(?:\\d+\\.\\s*)|(?:\\*\\s*))?).*");
+    
+    
     //Enums
     
     /**
      * An enumeration of box types for the boxText method.
      */
     public enum BoxType {
+        
+        //Values
+        
         NO_BOX,
         BOX,
         DOUBLE_BOX
+        
     }
-    
-    
-    //Constants
-    
-    /**
-     * A pattern for extracting the starting indent of a string.
-     */
-    public static final Pattern INDENT_SPACE_PATTERN = Pattern.compile("^(?<indent>\\s*((\\d+\\.\\s*)|(\\*\\s*))?).*");
     
     
     //Functions
     
     /**
-     * Splits a passed string by line separators and returns a list of lines.
-     *
-     * @param str The string to split.
-     * @return A list of the lines in the passed string.
-     */
-    @SuppressWarnings("HardcodedLineSeparator")
-    public static List<String> splitLines(String str) {
-        String[] lines = str.split("\\r?\\n", -1);
-        return new ArrayList<>(Arrays.asList(lines));
-    }
-    
-    /**
-     * Unsplits a passed list of lines with line separators and returns a string.
-     *
-     * @param lines The list of lines to unsplit.
-     * @return A string containing the lines in the passed list.
-     */
-    public static String unsplitLines(List<String> lines) {
-        StringBuilder str = new StringBuilder();
-        for (int i = 0; i < lines.size(); i++) {
-            str.append(lines.get(i));
-            if (i < (lines.size() - 1)) {
-                str.append(System.lineSeparator());
-            }
-        }
-        return str.toString();
-    }
-    
-    /**
-     * Tokenizes a passed string into its words and returns a list of those words.
+     * Tokenizes a passed string into its tokens and returns a list of those tokens.
      *
      * @param str   The string to tokenize.
      * @param delim The regex delimiter to separate tokens by.
-     * @return A list of all the tokens of the passed string.
+     * @param hard  Whether or not to include empty tokens.
+     * @return The list of all the tokens from the passed string.
      */
-    public static List<String> tokenize(String str, String delim) {
-        String[] lines = str.split(delim);
+    public static List<String> tokenize(String str, String delim, boolean hard) {
+        String[] lines = str.split(delim, (hard ? -1 : 0));
         return new ArrayList<>(Arrays.asList(lines));
     }
     
     /**
-     * Tokenizes a passed string into its words and returns a list of those words.
+     * Tokenizes a passed string into its tokens and returns a list of those tokens.
+     *
+     * @param str   The string to tokenize.
+     * @param delim The regex delimiter to separate tokens by.
+     * @return The list of all the tokens from the passed string.
+     * @see #tokenize(String, String, boolean)
+     */
+    public static List<String> tokenize(String str, String delim) {
+        return tokenize(str, delim, false);
+    }
+    
+    /**
+     * Tokenizes a passed string into its tokens and returns a list of those tokens.
      *
      * @param str The string to tokenize.
-     * @return A list of all the tokens of the passed string.
+     * @return The list of all the tokens from the passed string.
      * @see #tokenize(String, String)
      */
     public static List<String> tokenize(String str) {
@@ -105,11 +124,71 @@ public final class StringUtility {
     }
     
     /**
+     * Tokenizes a string into a list of tokens of a certain length.
+     *
+     * @param str    The string to tokenize.
+     * @param length The length of the tokens.
+     * @return The list of all the tokens from the passed string.
+     */
+    public static List<String> tokenize(String str, int length) {
+        return Arrays.asList(str.split("(?<=\\G.{" + length + "})"));
+    }
+    
+    /**
+     * Tokenizes a string into a list of tokens based on a list of valid tokens.
+     *
+     * @param str         The string to tokenize.
+     * @param validTokens The list of valid tokens.
+     * @param sortList    Whether or not to sort the valid tokens list for best performance.
+     * @return The list of all the tokens from the passed string, or null when the string cannot be tokenized.
+     */
+    public static List<String> tokenize(String str, List<String> validTokens, boolean sortList) {
+        final List<String> validTokenList = new ArrayList<>(validTokens);
+        if (sortList) {
+            validTokenList.sort((o1, o2) -> Integer.compare(o2.length(), o1.length()));
+        }
+        
+        final Map<Character, String> placeholders = new HashMap<>();
+        int originalMaxCharacter = (str + String.join("", validTokenList)).codePoints().max().orElse(0);
+        int placeholderChar = originalMaxCharacter + 1;
+        for (String validToken : validTokenList) {
+            if (!str.contains(validToken)) {
+                continue;
+            }
+            if (placeholderChar > 65535) {
+                return null;
+            }
+            char placeholder = (char) placeholderChar++;
+            placeholders.put(placeholder, validToken);
+            str = str.replace(validToken, String.valueOf(placeholder));
+        }
+        
+        int newMinCharacter = str.codePoints().min().orElse(0);
+        if (newMinCharacter <= originalMaxCharacter) {
+            return null;
+        }
+        
+        return str.codePoints().mapToObj(e -> (char) e).map(placeholders::get).collect(Collectors.toList());
+    }
+    
+    /**
+     * Tokenizes a string into a list of tokens based on a list of valid tokens.
+     *
+     * @param str         The string to tokenize.
+     * @param validTokens The list of valid tokens.
+     * @return The list of all the tokens from the passed string, or null when the string cannot be tokenized.
+     * @see #tokenize(String, List)
+     */
+    public static List<String> tokenize(String str, List<String> validTokens) {
+        return tokenize(str, validTokens, true);
+    }
+    
+    /**
      * Detokenizes a passed list of tokens back into a string.
      *
      * @param tokens The list of tokens to detokenize.
      * @param delim  The delimiter to insert between tokens.
-     * @return A string composed of the tokens in the passed list.
+     * @return The string composed of the tokens in the passed list.
      */
     public static String detokenize(List<String> tokens, String delim) {
         StringBuilder str = new StringBuilder();
@@ -126,7 +205,7 @@ public final class StringUtility {
      * Detokenizes a passed list of tokens back into a string.
      *
      * @param tokens The list of tokens to detokenize.
-     * @return A string composed of the tokens in the passed list.
+     * @return The string composed of the tokens in the passed list.
      * @see #detokenize(List, String)
      */
     public static String detokenize(List<String> tokens) {
@@ -134,10 +213,32 @@ public final class StringUtility {
     }
     
     /**
+     * Splits a passed string by line separators and returns a list of lines.
+     *
+     * @param str The string to split.
+     * @return The list of the lines in the passed string.
+     * @see #tokenize(String, String, boolean)
+     */
+    public static List<String> splitLines(String str) {
+        return tokenize(str, "\\r?\\n", true);
+    }
+    
+    /**
+     * Unsplits a passed list of lines with line separators and returns a string.
+     *
+     * @param lines The list of lines to unsplit.
+     * @return The string containing the lines in the passed list.
+     * @see #detokenize(List, String)
+     */
+    public static String unsplitLines(List<String> lines) {
+        return detokenize(lines, System.lineSeparator());
+    }
+    
+    /**
      * Tokenizes a passed string into its a list of arguments delimited either by spaces or quotes.
      *
      * @param str The string to tokenize.
-     * @return A list of all the args from the passed string.
+     * @return The list of all the args from the passed string.
      */
     public static List<String> tokenizeArgs(String str) {
         List<String> args = new ArrayList<>();
@@ -173,10 +274,22 @@ public final class StringUtility {
     }
     
     /**
+     * Reverses a string.
+     *
+     * @param str The string.
+     * @return The reversed string.
+     */
+    public static String reverse(String str) {
+        return new StringBuilder(str).reverse().toString();
+    }
+    
+    /**
      * Determines if a character is alphanumeric or not.
      *
      * @param c The character.
      * @return Whether the character is alphanumeric or not.
+     * @see Character#isAlphabetic(int)
+     * @see Character#isDigit(char)
      */
     public static boolean isAlphanumeric(char c) {
         return Character.isAlphabetic(c) || Character.isDigit(c);
@@ -189,7 +302,7 @@ public final class StringUtility {
      * @return Whether the string is alphanumeric or not.
      */
     public static boolean isAlphanumeric(String str) {
-        return str.matches("[a-zA-Z0-9]*");
+        return ALPHANUMERIC_PATTERN.matcher(str).matches();
     }
     
     /**
@@ -197,6 +310,7 @@ public final class StringUtility {
      *
      * @param c The character.
      * @return Whether the character is alphabetic or not.
+     * @see Character#isAlphabetic(int)
      */
     public static boolean isAlphabetic(char c) {
         return Character.isAlphabetic(c);
@@ -209,7 +323,7 @@ public final class StringUtility {
      * @return Whether the string is alphabetic or not.
      */
     public static boolean isAlphabetic(String str) {
-        return str.matches("[a-zA-Z]*");
+        return ALPHABETIC_PATTERN.matcher(str).matches();
     }
     
     /**
@@ -218,6 +332,7 @@ public final class StringUtility {
      * @param c The character.
      * @return Whether the character is a vowel or not.
      */
+    @SuppressWarnings("SpellCheckingInspection")
     public static boolean isVowel(char c) {
         return ("AEIOUaeiou".indexOf(c) != -1);
     }
@@ -228,6 +343,7 @@ public final class StringUtility {
      * @param c The character.
      * @return Whether the character is a consonant or not.
      */
+    @SuppressWarnings("SpellCheckingInspection")
     public static boolean isConsonant(char c) {
         return ("BCDFGHJKLMNPQRSTVWXYZbcdfghjklmnpqrstvwxyz".indexOf(c) != -1);
     }
@@ -237,6 +353,7 @@ public final class StringUtility {
      *
      * @param c The character.
      * @return Whether the character is numeric or not.
+     * @see Character#isDigit(char)
      */
     public static boolean isNumeric(char c) {
         return Character.isDigit(c);
@@ -249,7 +366,7 @@ public final class StringUtility {
      * @return Whether the string is numeric or not.
      */
     public static boolean isNumeric(String str) {
-        return str.matches("-?[0-9]*(\\.[0-9]+)?");
+        return NUMERIC_PATTERN.matcher(str).matches();
     }
     
     /**
@@ -257,6 +374,8 @@ public final class StringUtility {
      *
      * @param c The character.
      * @return Whether the character is a symbol or not.
+     * @see Character#isLetterOrDigit(char)
+     * @see #isWhitespace(char)
      */
     public static boolean isSymbol(char c) {
         return !(Character.isLetterOrDigit(c) || isWhitespace(c));
@@ -269,7 +388,7 @@ public final class StringUtility {
      * @return Whether the string is punctuation or not.
      */
     public static boolean isSymbol(String str) {
-        return str.matches("[^a-zA-Z0-9]*");
+        return SYMBOL_PATTERN.matcher(str).matches();
     }
     
     /**
@@ -277,6 +396,7 @@ public final class StringUtility {
      *
      * @param c The character.
      * @return Whether the character is whitespace or not.
+     * @see Character#isWhitespace(char)
      */
     public static boolean isWhitespace(char c) {
         return Character.isWhitespace(c) || (c == '\0');
@@ -289,7 +409,7 @@ public final class StringUtility {
      * @return Whether the string is whitespace or not.
      */
     public static boolean isWhitespace(String str) {
-        return str.matches("[\\s\0]*");
+        return WHITESPACE_PATTERN.matcher(str).matches();
     }
     
     /**
@@ -300,6 +420,18 @@ public final class StringUtility {
      */
     public static String removeWhiteSpace(String string) {
         return string.replaceAll("[\\s\0]+", "");
+    }
+    
+    /**
+     * Removes the diacritical marks from a string.
+     *
+     * @param string The string to operate on.
+     * @return The string with all diacritical marks removed.
+     */
+    public static String removeDiacritics(String string) {
+        return Normalizer.normalize(string, Normalizer.Form.NFD)
+                .replaceAll("\\p{InCOMBINING_DIACRITICAL_MARKS}+", "")
+                .replaceAll("\\p{InCOMBINING_DIACRITICAL_MARKS_SUPPLEMENT}+", "");
     }
     
     /**
@@ -416,6 +548,8 @@ public final class StringUtility {
      *
      * @param str The string to trim.
      * @return The trimmed string.
+     * @see #lTrim(String)
+     * @see #rTrim(String)
      */
     public static String trim(String str) {
         return lTrim(rTrim(str));
@@ -442,6 +576,19 @@ public final class StringUtility {
     }
     
     /**
+     * Removes the first n characters from the beginning of a string and the last n characters from the end of a string.
+     *
+     * @param str  The string to skin.
+     * @param skin The number of characters to skin.
+     * @return The string with the first n characters and last n characters removed.
+     * @see #lShear(String, int)
+     * @see #rShear(String, int)
+     */
+    public static String skin(String str, int skin) {
+        return lShear(rShear(str, skin), skin);
+    }
+    
+    /**
      * Removes the first n characters from the beginning of a string.
      *
      * @param str   The string to shear.
@@ -456,23 +603,6 @@ public final class StringUtility {
             return "";
         }
         return str.substring(shear);
-    }
-    
-    /**
-     * Returns the first n characters from the beginning of a string.
-     *
-     * @param str  The string to snip from.
-     * @param snip The number of characters to return.
-     * @return The first n characters of the string.
-     */
-    public static String lSnip(String str, int snip) {
-        if (snip <= 0) {
-            return "";
-        }
-        if (snip >= str.length()) {
-            return str;
-        }
-        return str.substring(0, snip);
     }
     
     /**
@@ -493,9 +623,42 @@ public final class StringUtility {
     }
     
     /**
+     * Returns the first n characters from the beginning of a string and the last n characters from the end of a string.
+     *
+     * @param str  The string to gut.
+     * @param skin The number of characters to not gut.
+     * @return The first n characters and the last n characters of the string.
+     * @see #lSnip(String, int)
+     * @see #rSnip(String, int)
+     */
+    public static String gut(String str, int skin) {
+        if (skin >= (str.length() / 2)) {
+            return str;
+        }
+        return lSnip(str, skin) + rSnip(str, skin);
+    }
+    
+    /**
+     * Returns the first n characters from the beginning of a string.
+     *
+     * @param str  The string to snip.
+     * @param snip The number of characters to return.
+     * @return The first n characters of the string.
+     */
+    public static String lSnip(String str, int snip) {
+        if (snip <= 0) {
+            return "";
+        }
+        if (snip >= str.length()) {
+            return str;
+        }
+        return str.substring(0, snip);
+    }
+    
+    /**
      * Returns the last n characters from the end of a string.
      *
-     * @param str  The string to snip from.
+     * @param str  The string to snip.
      * @param snip The number of characters to return.
      * @return The last n characters of the string.
      */
@@ -670,6 +833,33 @@ public final class StringUtility {
     }
     
     /**
+     * Determines the number of occurrences of a pattern in a string.
+     *
+     * @param pattern The pattern to find the number of occurrences of.
+     * @param string  The string to operate on.
+     * @param start   The index to start looking from.
+     * @param end     The index to stop looking at.
+     * @return The number of occurrences of the pattern in the string.
+     * @see #numberOfOccurrences(String, String)
+     */
+    public static int numberOfOccurrences(String pattern, String string, int start, int end) {
+        if ((start == 0) && (end == string.length() - 1)) {
+            return numberOfOccurrences(pattern, string);
+        }
+        return numberOfOccurrences(pattern, string.substring(start, end));
+    }
+    
+    /**
+     * Fixes double spaces in a string.
+     *
+     * @param string The string to operate on.
+     * @return The string with double spaces replaced with single spaces.
+     */
+    public static String fixSpaces(String string) {
+        return string.replaceAll("\\s+", " ");
+    }
+    
+    /**
      * Removes the punctuation from a string.
      *
      * @param string The string to operate on.
@@ -773,6 +963,7 @@ public final class StringUtility {
      * @param str  The string to pad.
      * @param size The target size of the string.
      * @return The padded string.
+     * @see #padLeft(String, int, char)
      */
     public static String padLeft(String str, int size) {
         return padLeft(str, size, ' ');
@@ -804,6 +995,7 @@ public final class StringUtility {
      * @param str  The string to pad.
      * @param size The target size of the string.
      * @return The padded string.
+     * @see #padRight(String, int)
      */
     public static String padRight(String str, int size) {
         return padRight(str, size, ' ');
@@ -830,6 +1022,7 @@ public final class StringUtility {
      * @param num  The number to pad.
      * @param size The specified size of the final string.
      * @return The padded number string.
+     * @see #padZero(String, int)
      */
     public static String padZero(int num, int size) {
         return padZero(Integer.toString(num), size);
@@ -840,6 +1033,7 @@ public final class StringUtility {
      *
      * @param num The length to make the string.
      * @return A new string filled with spaces to the length specified.
+     * @see #fillStringOfLength(char, int)
      */
     public static String spaces(int num) {
         return fillStringOfLength(' ', num);
@@ -868,11 +1062,84 @@ public final class StringUtility {
             return "";
         }
         
-        StringBuilder out = new StringBuilder();
-        for (int i = 0; i < num; i++) {
-            out.append(str);
+        return String.valueOf(str).repeat(num);
+    }
+    
+    /**
+     * Returns '[aA] {str}' or '[aA]n {str}' depending on the string.
+     *
+     * @param str       The string to justify.
+     * @param uppercase Whether or not to capitalize the first letter.
+     * @return '[aA] {str}' or '[aA]n {str}'.
+     */
+    public static String justifyAOrAn(String str, boolean uppercase) {
+        if (str.isBlank()) {
+            return "";
         }
-        return out.toString();
+        
+        return (uppercase ? 'A' : 'a') + (isVowel(str.charAt(0)) ? "n" : "") + ' ' + str;
+    }
+    
+    /**
+     * Returns 'a {str}' or 'an {str}' depending on the string.
+     *
+     * @param str The string to justify.
+     * @return 'a {str}' or 'an {str}'.
+     * @see #justifyAOrAn(String, boolean)
+     */
+    public static String justifyAOrAn(String str) {
+        return justifyAOrAn(str, false);
+    }
+    
+    /**
+     * Returns '{quantity} {unit}' or '{quantity} {unit}s' depending on the quantity.
+     *
+     * @param quantity The quantity.
+     * @param unit     The name of the unit.
+     * @return '{quantity} {unit}' or '{quantity} {unit}s' depending on the quantity
+     */
+    public static String justifyQuantity(int quantity, String unit) {
+        if (unit.isBlank()) {
+            return String.valueOf(quantity);
+        }
+        
+        return String.valueOf(quantity) + ' ' + unit + ((quantity != 1) ? "s" : "");
+    }
+    
+    /**
+     * Returns a string representing a file.
+     *
+     * @param file     The file.
+     * @param absolute Whether or not to use the absolute path.
+     * @return The string representing the file.
+     */
+    public static String fileString(File file, boolean absolute) {
+        String fileString = absolute ? file.getAbsolutePath() : file.getPath();
+        return fileString.replace("\\", "/");
+    }
+    
+    /**
+     * Returns a string representing a file.
+     *
+     * @param file The file.
+     * @return The string representing the file.
+     * @see #fileString(File, boolean)
+     */
+    public static String fileString(File file) {
+        return fileString(file, true);
+    }
+    
+    /**
+     * Returns a string representing a method.
+     *
+     * @param clazz           The class that has the method.
+     * @param methodName      The name of the method.
+     * @param argumentClasses The classes of the arguments of the method.
+     * @return The method string.
+     */
+    public static String methodString(Class<?> clazz, String methodName, Class<?>... argumentClasses) {
+        return clazz.getSimpleName() + "::" + methodName +
+                '(' + Arrays.stream(argumentClasses).sequential().map(Class::getSimpleName).collect(Collectors.joining(", ")) + ')';
     }
     
     /**
@@ -909,7 +1176,7 @@ public final class StringUtility {
             spaces = indentString.length();
             if ((breakIndent > 0) && indentString.endsWith(". ")) {
                 breakIndent -= 2;
-                breakIndent = (breakIndent < 0) ? 0 : breakIndent;
+                breakIndent = Math.max(breakIndent, 0);
             }
         }
         String indent = spaces(spaces);
@@ -928,7 +1195,8 @@ public final class StringUtility {
             String work = lSnip(text, width);
             
             boolean addDash = false;
-            int finalWidth = Math.min(width, text.length());
+            int trueWidth = Math.min(width, text.length());
+            int finalWidth = trueWidth;
             if (clean && !text.equals(work) && !isWhitespace(text.charAt(finalWidth))) {
                 for (int i = work.length() - 1; i >= 0; i--) {
                     if (isWhitespace(work.charAt(i))) {
@@ -936,7 +1204,7 @@ public final class StringUtility {
                     }
                     finalWidth--;
                 }
-                if (finalWidth < ((Math.min(width, text.length()) - (spaces + (first ? 0 : breakIndent))) / (width / 10.0))) {
+                if (finalWidth < ((trueWidth - (spaces + (first ? 0 : breakIndent))) / (width / 10.0))) {
                     finalWidth = width - 1;
                     addDash = true;
                 }
@@ -944,7 +1212,7 @@ public final class StringUtility {
             
             work = lSnip(work, finalWidth);
             if (addDash) {
-                work = work + "-";
+                work = work + '-';
             }
             work = padRight(work, width);
             wrapped.add(work);
@@ -974,6 +1242,7 @@ public final class StringUtility {
      * @param width The width to limit the box of text to.
      * @param clean Whether or not to honor words and preserve line indents.
      * @return The text formatted into a box.
+     * @see #wrapText(String, int, boolean, int)
      */
     public static List<String> wrapText(String text, int width, boolean clean) {
         return wrapText(text, width, clean, 0);
@@ -985,6 +1254,7 @@ public final class StringUtility {
      * @param text  The text for format.
      * @param width The width to limit the box of text to.
      * @return The text formatted into a box.
+     * @see #wrapText(String, int, boolean)
      */
     public static List<String> wrapText(String text, int width) {
         return wrapText(text, width, false);
@@ -1065,6 +1335,7 @@ public final class StringUtility {
      * @param breakIndent The number of additional spaces to add before a line that was wrapped.
      * @param border      The number of spaces to border the right side of the box with.
      * @return The text formatted into a box.
+     * @see #boxText(List, int, boolean, int, int, BoxType)
      */
     public static List<String> boxText(List<String> text, int width, boolean clean, int breakIndent, int border) {
         return boxText(text, width, clean, breakIndent, border, BoxType.NO_BOX);
@@ -1078,6 +1349,7 @@ public final class StringUtility {
      * @param clean       Whether or not to honor words and preserve line indents.
      * @param breakIndent The number of additional spaces to add before a line that was wrapped.
      * @return The text formatted into a box.
+     * @see #boxText(List, int, boolean, int, int)
      */
     public static List<String> boxText(List<String> text, int width, boolean clean, int breakIndent) {
         return boxText(text, width, clean, breakIndent, 0);
@@ -1090,6 +1362,7 @@ public final class StringUtility {
      * @param width The width to limit the box of text to.
      * @param clean Whether or not to honor words and preserve line indents.
      * @return The text formatted into a box.
+     * @see #boxText(List, int, boolean, int)
      */
     public static List<String> boxText(List<String> text, int width, boolean clean) {
         return boxText(text, width, clean, 0);
@@ -1101,6 +1374,7 @@ public final class StringUtility {
      * @param text  The text to format.
      * @param width The width to limit the box of text to.
      * @return The text formatted into a box.
+     * @see #boxText(List, int, boolean)
      */
     public static List<String> boxText(List<String> text, int width) {
         return boxText(text, width, true);

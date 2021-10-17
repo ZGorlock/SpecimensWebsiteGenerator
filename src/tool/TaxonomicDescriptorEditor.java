@@ -9,7 +9,7 @@ package tool;
 import java.io.File;
 import java.util.List;
 
-import common.Filesystem;
+import commons.access.Filesystem;
 import main.SpecimensWebsiteGenerator;
 
 public class TaxonomicDescriptorEditor {

@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import common.Filesystem;
+import commons.access.Filesystem;
 import main.SpecimensWebsiteGenerator;
 import utility.CloudinaryUtility;
 import utility.ResourceUtility;

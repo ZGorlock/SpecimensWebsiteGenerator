@@ -19,8 +19,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.cloudinary.utils.StringUtils;
-import common.Filesystem;
-import common.StringUtility;
+import commons.access.Filesystem;
+import commons.string.StringUtility;
 import utility.CloudinaryUtility;
 import utility.ResourceUtility;
 

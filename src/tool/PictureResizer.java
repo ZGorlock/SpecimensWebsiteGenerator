@@ -30,7 +30,7 @@ import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
 
-import common.Filesystem;
+import commons.access.Filesystem;
 
 public class PictureResizer {
     
