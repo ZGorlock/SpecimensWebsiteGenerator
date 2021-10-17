@@ -332,10 +332,50 @@ public class SpecimensWebsiteGenerator {
             content.add("\t<p><b>");
             List<String> idLines = new ArrayList<>();
             Pattern referencePattern = Pattern.compile("#(?<id>\\d{4})");
+            Pattern coordinatesPattern = Pattern.compile("^(?<coordinates>-?\\d+\\.\\d+\\s-?\\d+\\.\\d+),\\s(?<elevation>\\d+m)");
             for (String idLine : Filesystem.readLines(idFile)) {
                 Matcher referenceMatcher = referencePattern.matcher(idLine);
                 while (referenceMatcher.find()) {
                     idLine = idLine.replace(referenceMatcher.group(), "<a href=\"../" + referenceMatcher.group("id") + "/content.html\" target=\"mainFrame\">" + referenceMatcher.group("id") + "</a>");
+                }
+                Matcher coordinatesMatcher = coordinatesPattern.matcher(idLine);
+                if (coordinatesMatcher.matches()) {
+                    String coordinates = coordinatesMatcher.group("coordinates");
+                    String elevation = coordinatesMatcher.group("elevation");
+                    List<String> coordinateParts = StringUtility.tokenize(coordinates);
+                    double latitude = Double.parseDouble(coordinateParts.get(0));
+                    double longitude = Double.parseDouble(coordinateParts.get(1));
+                    StringBuilder latitudeDms = new StringBuilder();
+                    double tmpLatitude = Math.abs(latitude);
+                    latitudeDms.append((int) tmpLatitude).append('°');
+                    tmpLatitude -= (int) tmpLatitude;
+                    tmpLatitude *= 60.0;
+                    latitudeDms.append((int) tmpLatitude).append('\'');
+                    tmpLatitude -= (int) tmpLatitude;
+                    tmpLatitude *= 60.0;
+                    latitudeDms.append((int) tmpLatitude);
+                    tmpLatitude -= (int) tmpLatitude;
+                    tmpLatitude *= 10.0;
+                    latitudeDms.append('.').append((int) Math.round(tmpLatitude)).append('\"');
+                    StringBuilder longitudeDms = new StringBuilder();
+                    double tmpLongitude = Math.abs(longitude);
+                    longitudeDms.append((int) tmpLongitude).append('°');
+                    tmpLongitude -= (int) tmpLongitude;
+                    tmpLongitude *= 60.0;
+                    longitudeDms.append((int) tmpLongitude).append('\'');
+                    tmpLongitude -= (int) tmpLongitude;
+                    tmpLongitude *= 60.0;
+                    longitudeDms.append((int) tmpLongitude);
+                    tmpLongitude -= (int) tmpLongitude;
+                    tmpLongitude *= 10.0;
+                    longitudeDms.append('.').append((int) Math.round(tmpLongitude)).append('\"');
+                    String dms = latitudeDms.toString() + ((latitude >= 0) ? 'N' : 'S') + ' ' +
+                            longitudeDms + ((longitude >= 0) ? 'E' : 'W');
+                    String encodedDms = dms.replace(" ", "+").replace("\"", "%22")
+                            .replace("'", "%27").replace("°", "%C2%B0");
+                    String coordinateLink = "https://www.google.com/maps/place/" + encodedDms + "/@" +
+                            coordinateParts.get(0) + ',' + coordinateParts.get(1) + "/data=!3m1!1e3";
+                    idLine = "<a href=\"" + coordinateLink + "\" target=\"_blank\">" + dms + "</a>, " + elevation;
                 }
                 idLines.add(idLine);
                 if (idLine.toUpperCase().contains("LOST BEFORE") || idLine.toUpperCase().contains("DESTROYED BEFORE") ||
