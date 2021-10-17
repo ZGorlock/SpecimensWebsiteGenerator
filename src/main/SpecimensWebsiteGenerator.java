@@ -77,11 +77,12 @@ public class SpecimensWebsiteGenerator {
     
     private static void cleanup() throws Exception {
         Filesystem.deleteDirectory(new File(sink, "css"));
-        Filesystem.deleteDirectory(new File(sink, "references"));
         Filesystem.deleteDirectory(new File(sink, "scripts"));
+        Filesystem.deleteDirectory(new File(sink, "assets"));
         Filesystem.deleteDirectory(new File(sink, "specimens"));
-        Filesystem.deleteDirectory(new File(sink, "treeview"));
+        Filesystem.deleteDirectory(new File(sink, "references"));
         Filesystem.deleteDirectory(new File(sink, "vialRacks"));
+        Filesystem.deleteDirectory(new File(sink, "treeview"));
         Filesystem.deleteFile(new File(sink, "index.html"));
         Filesystem.deleteFile(new File(sink, "main.html"));
         Filesystem.deleteFile(new File(sink, "navbar.html"));
@@ -124,6 +125,7 @@ public class SpecimensWebsiteGenerator {
         makeMainPage();
         makeStyle();
         makeTogglers();
+        makeAssets();
         makeSpecimenPages();
         makeReferences();
         makeVialRacks();
@@ -195,6 +197,14 @@ public class SpecimensWebsiteGenerator {
     private static void makeTogglers() throws Exception {
         makeNavbarToggler();
         makeTreeViewToggler();
+    }
+    
+    private static void makeAssets() throws Exception {
+        File assetsDir = new File(sink, "assets");
+        Filesystem.createDirectory(assetsDir);
+        
+        File starIcon = new File("resources/assets/star.png");
+        Filesystem.copyFile(starIcon, new File(assetsDir, starIcon.getName()));
     }
     
     private static void makeNavbarToggler() throws Exception {
@@ -295,6 +305,13 @@ public class SpecimensWebsiteGenerator {
         Filesystem.createDirectory(specimenSinkDir);
         boolean finalized = false;
         
+        File favorite = new File(specimenDir, "favorite.txt");
+        String favoriteIcon = "";
+        if (favorite.exists()) {
+            favorites.add(id);
+            favoriteIcon = "<img src=\"../../assets/star.png\" width=\"32px\" height=\"30px\"/> ";
+        }
+        
         Filesystem.writeLines(new File(specimenSinkDir, "main.html"), wrapHtml(null, true, false, 2));
         
         List<String> content = new ArrayList<>();
@@ -321,7 +338,7 @@ public class SpecimensWebsiteGenerator {
         content.add("<br>");
         content.add("");
         
-        content.add("<h1>" + name + "</h1>");
+        content.add("<h1>" + favoriteIcon + name + "</h1>");
         content.add("<hr>");
         content.add("<br>");
         content.add("");
@@ -453,11 +470,6 @@ public class SpecimensWebsiteGenerator {
             content.add("");
         } else {
             System.err.println("Missing Taxonomy: " + id);
-        }
-        
-        File favorite = new File(specimenDir, "favorite.txt");
-        if (favorite.exists()) {
-            favorites.add(id);
         }
         
         File photosDir = new File(specimenDir, "Photos");
