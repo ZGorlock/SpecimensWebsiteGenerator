@@ -349,7 +349,7 @@ public class SpecimensWebsiteGenerator {
         content.add("<center>");
         
         File idFile = new File(specimenDir, "id.txt");
-        if (idFile.exists()) {
+        if (idFile.exists() && (idFile.length() > 0)) {
             content.add("\t<p><b>");
             List<String> idLines = new ArrayList<>();
             Pattern referencePattern = Pattern.compile("#(?<id>\\d{4})");
@@ -399,11 +399,7 @@ public class SpecimensWebsiteGenerator {
                     idLine = "<a href=\"" + coordinateLink + "\" target=\"_blank\">" + dms + "</a>, " + elevation;
                 }
                 idLines.add(idLine);
-                if (idLine.toUpperCase().contains("LOST BEFORE") || idLine.toUpperCase().contains("DESTROYED BEFORE") ||
-                        idLine.toUpperCase().contains("LOST DURING") || idLine.toUpperCase().contains("DESTROYED DURING") ||
-                        idLine.toUpperCase().contains("LOST WHILE") || idLine.toUpperCase().contains("DESTROYED WHILE") ||
-                        idLine.toUpperCase().contains("LOST AFTER") || idLine.toUpperCase().contains("DESTROYED AFTER") ||
-                        idLine.toUpperCase().contains("REPLACED WITH")) {
+                if (idLine.toUpperCase().matches(".*(?:(?:(?:LOST|DESTROYED)\\s(?:BEFORE|DURING|WHILE|AFTER))|(?:REPLACED\\s(?:WITH|BY))).*")) {
                     finalized = true;
                 }
             }
