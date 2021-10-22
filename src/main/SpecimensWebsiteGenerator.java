@@ -61,6 +61,22 @@ public class SpecimensWebsiteGenerator {
         taxonomyMap.nodeValue = "SPECIMENS";
     }
     
+    private static int specimenCount = 0;
+    
+    private static int photoCount = 0;
+    
+    private static int uniqueSpecimenCount = 0;
+    
+    private static int favoriteSpecimenCount = 0;
+    
+    private static int speciesLevelIdCount = 0;
+    
+    private static int nonSpeciesLevelIdCount = 0;
+    
+    private static int finalizedSpecimenCount = 0;
+    
+    private static int unfinalizedSpecimenCount = 0;
+    
     
     //Main Method
     
@@ -69,6 +85,7 @@ public class SpecimensWebsiteGenerator {
         
         cleanup();
         makeWebsite();
+        printStats();
         
         ResourceUtility.saveResources();
     }
@@ -134,6 +151,20 @@ public class SpecimensWebsiteGenerator {
         makeNavbar();
     }
     
+    private static void printStats() throws Exception {
+        System.out.println();
+        System.out.println("--------------------------------------------------");
+        System.out.println("Number of Specimens:             " + specimenCount);
+        System.out.println("Number of Photos:                " + photoCount);
+        System.out.println("Number of Unique Specimens:      " + uniqueSpecimenCount);
+        System.out.println("Number of Favorite Specimens:    " + favoriteSpecimenCount);
+        System.out.println("Number of Species Level IDs:     " + speciesLevelIdCount);
+        System.out.println("Number of Non-Species Level IDs: " + nonSpeciesLevelIdCount);
+        System.out.println("Number of Finalized Specimens:   " + finalizedSpecimenCount);
+        System.out.println("Number of Unfinalized Specimens: " + unfinalizedSpecimenCount);
+        System.out.println("--------------------------------------------------");
+    }
+    
     
     //Website Methods
     
@@ -157,6 +188,7 @@ public class SpecimensWebsiteGenerator {
             content.add("</center>");
             content.add("<br>");
             content.add("");
+            photoCount++;
         }
         
         Filesystem.writeLines(mainPage, wrapHtml(content, false, false, 0));
@@ -314,6 +346,7 @@ public class SpecimensWebsiteGenerator {
         if (favorite.exists()) {
             favorites.add(id);
             favoriteIcon = "<img src=\"../../assets/star.png\" width=\"32px\" height=\"30px\"/> ";
+            favoriteSpecimenCount++;
         }
         
         Filesystem.writeLines(new File(specimenSinkDir, "main.html"), wrapHtml(null, true, false, 2));
@@ -529,6 +562,7 @@ public class SpecimensWebsiteGenerator {
                     }
                     images.add(imageId);
                     index++;
+                    photoCount++;
                 }
                 
                 content.add("\t<br>");
@@ -602,8 +636,12 @@ public class SpecimensWebsiteGenerator {
         }
         content.add("</center>");
         
+        specimenCount++;
         if (!finalized) {
             System.out.println("Not Finalized: " + name);
+            unfinalizedSpecimenCount++;
+        } else {
+            finalizedSpecimenCount++;
         }
         
         Filesystem.writeLines(new File(specimenSinkDir, "content.html"), wrapHtml(content, false, false, 2, "scripts/imagePopup.js"));
@@ -942,10 +980,13 @@ public class SpecimensWebsiteGenerator {
         
         String nodeValue = "";
         
+        int quantity = 0;
+        
         List<TaxonomyMap> nodes = new ArrayList<>();
         
         public static void addSpecimen(List<String> taxonomy, String id, String specimen) {
             TaxonomyMap node = taxonomyMap;
+            boolean isSpeciesId = false;
             for (String taxonomyLine : taxonomy) {
                 if (taxonomyLine.toUpperCase().startsWith("NO TAXON")) {
                     continue;
@@ -957,6 +998,7 @@ public class SpecimensWebsiteGenerator {
                 for (Taxon taxon : Taxon.values()) {
                     if (taxon.name().equalsIgnoreCase(key)) {
                         found = true;
+                        isSpeciesId |= (taxon == Taxon.SPECIES);
                         break;
                     }
                 }
@@ -980,9 +1022,20 @@ public class SpecimensWebsiteGenerator {
                     node = newNode;
                 }
             }
+            
+            if (isSpeciesId) {
+                speciesLevelIdCount++;
+            } else {
+                nonSpeciesLevelIdCount++;
+            }
+            
             TaxonomyMap newNode = new TaxonomyMap();
             newNode.nodeValue = specimen;
             node.nodes.add(newNode);
+            node.quantity++;
+            if (node.quantity == 1) {
+                uniqueSpecimenCount++;
+            }
         }
         
         public static void cleanMap(TaxonomyMap node) {
