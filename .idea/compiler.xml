@@ -6,7 +6,7 @@
         <sourceOutputDir name="bin/generated-sources/annotations" />
         <sourceTestOutputDir name="bin/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="SpecimensWebsiteGenerator" />
+        <module name="specimens-website-generator" />
       </profile>
     </annotationProcessing>
   </component>
