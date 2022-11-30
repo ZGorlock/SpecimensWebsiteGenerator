@@ -904,6 +904,19 @@ public class SpecimensWebsiteGenerator {
         content.add("<a class=\"randomSpecimen\" href=\"\" target=\"mainFrame\" style=\"padding-left: 24px;\">RANDOM SPECIMEN</a>");
         
         content.add("<ul id=\"myUL\" style=\"padding: 6px 8px 6px 6px; color: #818181; font-size: 14px;\">");
+        content.add("\t<li><span class=\"caret\">FAVORITES</span>");
+        content.add("\t\t<ul class=\"nested\" style=\"padding-left: 20px;\">");
+        
+        List<String> favoriteKeys = new ArrayList<>(favorites);
+        Collections.reverse(favoriteKeys);
+        for (String favoriteKey : favoriteKeys) {
+            content.add("\t\t\t<li><span><a href=\"specimens/" + favoriteKey + "/content.html\" target=\"mainFrame\">" + specimens.get(favoriteKey) + "</a></span></li>");
+        }
+        content.add("\t\t</ul>");
+        content.add("\t</li>");
+        content.add("</ul>");
+        
+        content.add("<ul id=\"myUL\" style=\"padding: 6px 8px 6px 6px; color: #818181; font-size: 14px;\">");
         content.add("\t<li><span class=\"caret caret-down\">SPECIMENS</span>");
         content.add("\t\t<ul class=\"nested active\" style=\"padding-left: 20px;\">");
         
@@ -911,19 +924,6 @@ public class SpecimensWebsiteGenerator {
         Collections.reverse(specimenKeys);
         for (String specimenKey : specimenKeys) {
             content.add("\t\t\t<li><span><a href=\"specimens/" + specimenKey + "/content.html\" target=\"mainFrame\">" + specimens.get(specimenKey) + "</a></span></li>");
-        }
-        content.add("\t\t</ul>");
-        content.add("\t</li>");
-        content.add("</ul>");
-        
-        content.add("<ul id=\"myUL\" style=\"padding: 6px 8px 6px 6px; color: #818181; font-size: 14px;\">");
-        content.add("\t<li><span class=\"caret caret-down\">FAVORITES</span>");
-        content.add("\t\t<ul class=\"nested active\" style=\"padding-left: 20px;\">");
-        
-        List<String> favoriteKeys = new ArrayList<>(favorites);
-        Collections.reverse(favoriteKeys);
-        for (String favoriteKey : favoriteKeys) {
-            content.add("\t\t\t<li><span><a href=\"specimens/" + favoriteKey + "/content.html\" target=\"mainFrame\">" + specimens.get(favoriteKey) + "</a></span></li>");
         }
         content.add("\t\t</ul>");
         content.add("\t</li>");
