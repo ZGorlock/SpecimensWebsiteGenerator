@@ -861,10 +861,11 @@ public class SpecimensWebsiteGenerator {
         TaxonomyMap.cleanMap(taxonomyMap);
         
         List<String> content = new ArrayList<>();
-        content.add("<h1>Specimens Tree View</h1>");
+        content.add("<h1>Specimen Tree View</h1>");
         content.add("<hr>");
         content.add("<br>");
         content.add("");
+        
         content.add("<ul id=\"myUL\">");
         content.addAll(makeSubTreeView(taxonomyMap, 0));
         content.add("</ul>");
