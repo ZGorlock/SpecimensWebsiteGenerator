@@ -142,7 +142,7 @@ public class SpecimensWebsiteGenerator {
         makeIndex();
         makeMainPage();
         makeStyle();
-        makeTogglers();
+        makeScripts();
         makeAssets();
         makeSpecimenPages();
         makeReferences();
@@ -227,20 +227,10 @@ public class SpecimensWebsiteGenerator {
         Filesystem.writeLines(style, content);
     }
     
-    private static void makeTogglers() throws Exception {
+    private static void makeScripts() throws Exception {
         makeNavbarToggler();
         makeTreeViewToggler();
-    }
-    
-    private static void makeAssets() throws Exception {
-        File assetsDir = new File(sink, "assets");
-        Filesystem.createDirectory(assetsDir);
-        
-        File faviconArchive = new File("resources/assets/favicon.zip");
-        Archive.extract(faviconArchive, assetsDir);
-        
-        File starIcon = new File("resources/assets/star.png");
-        Filesystem.copyFile(starIcon, new File(assetsDir, starIcon.getName()));
+        makeRandomSpecimenSelector();
     }
     
     private static void makeNavbarToggler() throws Exception {
@@ -273,9 +263,9 @@ public class SpecimensWebsiteGenerator {
         content.add("\t\t\t} else {");
         content.add("\t\t\t\tsessionStorage.setItem('navbarCollapsed' + this.getAttribute('id'), true);");
         content.add("\t\t\t}");
+        content.add("\t\t});");
         content.add("");
         
-        content.add("\t\t});");
         content.add("\t}");
         content.add("});");
         
@@ -312,13 +302,59 @@ public class SpecimensWebsiteGenerator {
         content.add("\t\t\t} else {");
         content.add("\t\t\t\tsessionStorage.setItem('treeViewCollapsed' + this.getAttribute('id'), true);");
         content.add("\t\t\t}");
+        content.add("\t\t});");
         content.add("");
         
-        content.add("\t\t});");
         content.add("\t}");
         content.add("});");
         
         Filesystem.writeLines(new File(scriptsDir, "treeViewToggler.js"), content);
+    }
+    
+    private static void makeRandomSpecimenSelector() throws Exception {
+        File scriptsDir = new File(sink, "scripts");
+        Filesystem.createDirectory(scriptsDir);
+        
+        List<String> content = new ArrayList<>();
+        content.add("$(document).ready(function() {");
+        content.add("\tfunction getRandomSpecimenUrl() {");
+        content.add("\t\tvar randomId = Math.floor(Math.random() * " + Filesystem.getDirs(specimensSource).size() + ");");
+        content.add("\t\tvar randomIdStr = (\"0000\" + randomId).substr(-4, 4);");
+        content.add("\t\tvar randomUrl = \"specimens/\" + randomIdStr + \"/content.html\";");
+        content.add("\t\treturn randomUrl;");
+        content.add("\t}");
+        content.add("");
+        
+        content.add("\tvar selector = document.getElementsByClassName(\"randomSpecimen\");");
+        content.add("");
+        
+        content.add("\tvar i;");
+        content.add("\tfor (i = 0; i < selector.length; i++) {");
+        content.add("");
+        
+        content.add("\t\tselector[i].href = getRandomSpecimenUrl();");
+        content.add("");
+        
+        content.add("\t\tselector[i].addEventListener(\"click\", function() {");
+        content.add("\t\t\tthis.href = getRandomSpecimenUrl();");
+        content.add("\t\t});");
+        content.add("");
+        
+        content.add("\t}");
+        content.add("});");
+        
+        Filesystem.writeLines(new File(scriptsDir, "randomSpecimenSelector.js"), content);
+    }
+    
+    private static void makeAssets() throws Exception {
+        File assetsDir = new File(sink, "assets");
+        Filesystem.createDirectory(assetsDir);
+        
+        File faviconArchive = new File("resources/assets/favicon.zip");
+        Archive.extract(faviconArchive, assetsDir);
+        
+        File starIcon = new File("resources/assets/star.png");
+        Filesystem.copyFile(starIcon, new File(assetsDir, starIcon.getName()));
     }
     
     private static void makeSpecimenPages() throws Exception {
@@ -865,6 +901,8 @@ public class SpecimensWebsiteGenerator {
         content.add("<a href=\"main.html\" target=\"mainFrame\" style=\"padding-left: 24px;\">HOME</a>");
         content.add("<a href=\"treeview/content.html\" target=\"mainFrame\" style=\"padding-left: 24px;\">TREE VIEW</a>");
         
+        content.add("<a class=\"randomSpecimen\" href=\"\" target=\"mainFrame\" style=\"padding-left: 24px;\">RANDOM SPECIMEN</a>");
+        
         content.add("<ul id=\"myUL\" style=\"padding: 6px 8px 6px 6px; color: #818181; font-size: 14px;\">");
         content.add("\t<li><span class=\"caret caret-down\">SPECIMENS</span>");
         content.add("\t\t<ul class=\"nested active\" style=\"padding-left: 20px;\">");
@@ -899,7 +937,7 @@ public class SpecimensWebsiteGenerator {
         content.add("<br>");
         content.add("");
         
-        Filesystem.writeLines(new File(sink, "navbar.html"), wrapHtml(content, false, true, 0, "scripts/navbarToggler.js"));
+        Filesystem.writeLines(new File(sink, "navbar.html"), wrapHtml(content, false, true, 0, "scripts/navbarToggler.js", "scripts/randomSpecimenSelector.js"));
     }
     
     private static List<String> wrapHtml(List<String> content, boolean index, boolean navbar, int depth, String... scripts) throws Exception {
